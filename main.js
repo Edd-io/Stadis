@@ -2,13 +2,18 @@ const Discord = require('./Discord');
 const Database = require('./Database');
 const express = require('express');
 
+
 function webServer()
 {
 	const app = express();
 	const port = 3000;
 
 	app.get('/', (req, res) => {
-		res.send('Hello World!');
+		res.sendFile(__dirname + '/website/index.html');
+	});
+
+	app.get('/style.css', (req, res) => {
+		res.sendFile(__dirname + '/website/style.css');
 	});
 
 	app.listen(port, () => {
@@ -22,9 +27,9 @@ function main()
 	let		discord		= null;
 
 	webServer();
-	setTimeout(() => {
-		discord = new Discord.Discord(database);
-	}, 2000);
+	// setTimeout(() => {
+	// 	discord = new Discord.Discord(database);
+	// }, 2000);
 
 }
 

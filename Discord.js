@@ -14,7 +14,6 @@ class Discord
 		this.db = database;
 		this.websocket = new WebSocket(gatewayUrl);
 
-		console.log("Token : ", token);
 		this.websocket.on('open', () => {
 			console.log('Connected');
 			const identifyPayload = {
@@ -69,7 +68,6 @@ class Discord
 	{
 		for (let i = 0; i < message.d.relationships.length; i++)
 		{
-			console.log("Relationship : ", message.d.relationships[i].user.username);
 			this.bufferInfo.push({username: message.d.relationships[i].user.username, id: message.d.relationships[i].user.id, pfp: message.d.relationships[i].user.avatar});
 			this.db.insertUser(message.d.relationships[i].user.username, message.d.relationships[i].user.id);
 		}
@@ -87,7 +85,6 @@ class Discord
 				break;
 			}
 		}
-		console.log("Presence update : ", this.bufferPresence);
 		if (this.bufferPresence[message.d.user.id])
 		{
 			const	oldStatus				= this.bufferPresence[message.d.user.id];

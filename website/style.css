@@ -1,0 +1,102 @@
+body {
+	background-color: #3066BE;
+	color: #fff;
+	font-family: "Poppins", sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+#header {
+	background-color: #264e8f;
+	color: #fff;
+	display: flex;
+	justify-content: space-between;
+	position: relative;
+}
+
+#header #header-logo h1 {
+	color: #fff;
+	font-size: 30px;
+	margin: 0;
+	margin-top: 5px;
+	margin-left: 20px;
+}
+
+#header input {
+	width: 50%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	height: 30px;
+}
+
+#header #header-nav ul li {
+	display: inline;
+	margin-inline: 20px;
+}
+
+#dashboard {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+#information {
+	margin-inline: auto;
+}
+
+.dashboard-item {
+	background-color: #fff;
+	color: #000;
+	border-radius: 10px;
+	margin: 20px;
+	min-width: 400px;
+	max-width: 800px;
+	padding: 10px;
+	padding-inline: 20px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: relative;
+}
+
+.dashboard-item h2 {
+	margin: 10px 0 20px 0;
+	text-align: center;
+}
+
+.dashboard-item h3 {
+	margin: 10px 0 20px 0;
+	text-align: center;
+	position: absolute;
+	top: 5px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.dashboard .dashboard-item .content {
+	display: flex;
+	flex-direction: column;
+}
+
+.dashboard-item-content-item {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	margin: 5px 0;
+}
+
+.dashboard-item-content-item .important {
+	color: #05b128;
+}
+
+.no-space p {
+	margin: 0;
+}
+
+.dashboard-item #user-status {
+	width: 50%;
+}
+
