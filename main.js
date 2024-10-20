@@ -12,8 +12,16 @@ function webServer()
 		res.sendFile(__dirname + '/website/index.html');
 	});
 
+	app.get('/profile', (req, res) => {
+		res.sendFile(__dirname + '/website/profile.html');
+	});
+
 	app.get('/style.css', (req, res) => {
 		res.sendFile(__dirname + '/website/style.css');
+	});
+
+	app.get('/script.js', (req, res) => {
+		res.sendFile(__dirname + '/website/script.js');
 	});
 
 	app.listen(port, () => {

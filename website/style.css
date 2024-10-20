@@ -12,6 +12,7 @@ body {
 	display: flex;
 	justify-content: space-between;
 	position: relative;
+	height: 55px;
 }
 
 #header #header-logo h1 {
@@ -29,6 +30,13 @@ body {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	height: 30px;
+	padding: 15px;
+	text-decoration-line: none;
+	border-radius: 5px;
+}
+
+#header input:focus {
+	outline: none;
 }
 
 #header #header-nav ul li {
@@ -100,3 +108,62 @@ body {
 	width: 50%;
 }
 
+#content-profile {
+	width: 100%;
+	height: calc(100% - 55px);
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	color: #000;
+}
+
+#user-information {
+	width: 30%;
+	height: 95%;
+	border-radius: 10px;
+	background-color: white;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#user-data {
+	background-color: #fff;
+	color: #000;
+	border-radius: 10px;
+	width: calc(68% - 40px);
+	height: 95%;
+	margin: 0 auto;
+	padding-inline: 20px;
+}
+
+#user-pfp {
+	width: 70%;
+	background-color: #000;
+	border-radius: 50%;
+	margin: 20px;
+}
+
+#user-more {
+	width: 85%;
+	background-color: #c4c4c4;
+	padding: 10px;
+	margin-top: 10px;
+	border-radius: 10px;
+}
+
+#user-information .user-item {
+	width: 85%;
+	background-color: #c4c4c4;
+	padding-inline: 10px;
+	border-radius: 10px;
+}
+
+#graph-log-time {
+	width: 98%;
+	height: 30%;
+	background-color: #c4c4c4;
+	margin-left: 1%;
+}
