@@ -31,13 +31,22 @@ class Database
 		this.db.run(`
 			CREATE TABLE IF NOT EXISTS presence (
 				id INTEGER PRIMARY KEY,
-				account INTEGER,
+				account TEXT,
 				device TEXT,
 				status TEXT,
 				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
 		`);
+		this.db.run(`
+			CREATE TABLE IF NOT EXISTS pfp (
+				id INTEGER PRIMARY KEY,
+				account TEXT,
+				url TEXT,
+				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
+			)
+		`)
 	}
 
 
@@ -74,6 +83,36 @@ class Database
 			else
 				console.log('Presence added');
 		});
+	}
+
+	insertPfp(account, avatar)
+	{
+		const url = "https://cdn.discordapp.com/avatars/" + account + "/" + avatar + ".png?size=1024";
+
+		this.db.run('INSERT INTO pfp (account, url) VALUES (?, ?)', [account, url], (err) => {
+			if (err)
+				console.error(err.message);
+			else
+				console.log('Pfp added');
+		});
+	}
+
+	getUserPresence(user_id)
+	{
+		let	promise = null;
+		
+		promise = new Promise((resolve) => {
+			this.db.all('SELECT * FROM presence WHERE account = ?', [user_id], (err, rows) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(rows);
+			});
+		});
+		return (promise);
 	}
 }
 
