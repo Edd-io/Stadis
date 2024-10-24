@@ -35,9 +35,9 @@ function main()
 	let		discord		= null;
 
 	webServer();
-	// setTimeout(() => {
-	// 	discord = new Discord.Discord(database);
-	// }, 2000);
+	setTimeout(() => {
+ 		discord = new Discord.Discord(database);
+	}, 2000);
 
 }
 

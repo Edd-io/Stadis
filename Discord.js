@@ -18,6 +18,7 @@ class Discord
 			console.log('Connected');
 			const identifyPayload = {
 				op: 2,
+				intents: 32767,
 				d: {
 					token: token,
 					properties: {
@@ -57,6 +58,7 @@ class Discord
 
 	action(message)
 	{
+		console.log(message.t);
 		if (message.t === 'READY')
 			this.#readyEvent(message);
 		else if (message.t === 'PRESENCE_UPDATE')
