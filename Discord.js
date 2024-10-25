@@ -37,7 +37,6 @@ class Discord
 					}
 				}
 			};
-		
 			this.websocket.send(JSON.stringify(identifyPayload));
 		});
 		
@@ -54,17 +53,18 @@ class Discord
 			else
 				this.action(message);
 		});
+
+		this.websocket.on('close', () => {
+
+		});
 	}
 
 	action(message)
 	{
-		console.log("---------------------------");
-		console.log(message);
 		if (message.t === 'READY')
 			this.#readyEvent(message);
 		else if (message.t === 'PRESENCE_UPDATE')
 			this.#presenceUpdate(message);
-
 	}
 
 	#readyEvent(message)
@@ -113,7 +113,6 @@ class Discord
 			this.db.insertPresence(this.bufferInfo[index].id, "mobile", message.d.client_status.mobile ? message.d.client_status.mobile : "offline");
 			this.db.insertPresence(this.bufferInfo[index].id, "desktop", message.d.client_status.desktop ? message.d.client_status.desktop : "offline");
 		}
-		console.log("New presence update : ", this.bufferInfo[index].username, message.d.client_status);
 	}
 }
 
