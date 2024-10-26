@@ -7,8 +7,8 @@ function configApi(app, database)
 {
 	const api = apiImport.Api;
 
-	console.log(api);
 	app.post('/api/get_user_presence', (req, res) => {api.getUserPresense(req, res, database)});
+	app.post('/api/get_user_all_pfp', (req, res) => {api.getUserAllPfp(req, res, database)});
 }
 
 function webServer(database)
@@ -17,6 +17,7 @@ function webServer(database)
 	const port = 3000;
 
 	app.use(express.json());
+	app.use(express.static('data/pfp'));
 
 	app.get('/', (req, res) => {
 		res.sendFile(__dirname + '/website/index.html');
@@ -49,7 +50,7 @@ function main()
 	webServer(database);
 	setTimeout(() => {
  		discord = new Discord.Discord(database);
-	}, 2000);
+	}, 1000);
 
 }
 

@@ -10,7 +10,6 @@ class Api
 		
 		console.log('Request user presence for user_id: ' + req.body.user_id);
 		const user_id = req.body.user_id;
-		console.log(user_id, "and", typeof user_id);
 		database.getUserPresence(user_id).then((presence) => {
 			const	data = {desktop: [], mobile: [], web: []};
 			if (!presence)
@@ -29,6 +28,31 @@ class Api
 			res.send(data);
 		});
 	}
+
+	static getUserAllPfp(req, res, database)
+	{
+		if (!req.body.user_id)
+		{
+			res.send({error: 'Missing user_id'});
+			return;
+		}
+		
+		const user_id = req.body.user_id;
+		database.getUserAllPfp(user_id).then((pfp) => {
+			const	data = [];
+
+			if (!pfp)
+			{
+				res.send({error: 'User not found'});
+				return;
+			}
+			pfp.forEach((row) => {
+				data.push({url: row.url, timestamp: new Date(row.timestamp).getTime()});
+			});
+			res.send(data);
+		});
+	}
+
 }
 
 exports.Api = Api;

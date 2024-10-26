@@ -12,6 +12,11 @@ class Discord
 	constructor(database)
 	{
 		this.db = database;
+		this.connect();
+	}
+
+	connect()
+	{
 		this.websocket = new WebSocket(gatewayUrl);
 
 		this.websocket.on('open', () => {
@@ -55,7 +60,11 @@ class Discord
 		});
 
 		this.websocket.on('close', () => {
-
+			this.websocket = null;
+			bufferInfo = [];
+			bufferPresence = {};
+			console.log('Disconnected\nReconnecting...');
+			this.connect();
 		});
 	}
 
@@ -72,7 +81,23 @@ class Discord
 		for (let i = 0; i < message.d.relationships.length; i++)
 		{
 			this.bufferInfo.push({username: message.d.relationships[i].user.username, id: message.d.relationships[i].user.id, pfp: message.d.relationships[i].user.avatar});
-			this.db.insertUser(message.d.relationships[i].user.username, message.d.relationships[i].user.id);
+			this.db.insertUser(message.d.relationships[i].user.username, message.d.relationships[i].user.id).then((bool) => {
+				if (!bool)
+				{
+					this.db.getLastPfp(message.d.relationships[i].user.id).then((userPfp) => {
+						if (userPfp === undefined || userPfp.length === 0)
+							this.db.insertPfp(message.d.relationships[i].user.id, message.d.relationships[i].user.avatar);
+						else
+						{
+							if (userPfp.url !== "https://cdn.discordapp.com/avatars/" + message.d.relationships[i].user.id + "/" + message.d.relationships[i].user.avatar + ".png?size=1024")
+								this.db.insertPfp(message.d.relationships[i].user.id, message.d.relationships[i].user.avatar);
+						}
+					});
+					return ;
+				}
+				if (message.d.relationships[i].user.avatar !== undefined)
+					this.db.insertPfp(message.d.relationships[i].user.id, message.d.relationships[i].user.avatar);
+			});
 		}
 	}
 
@@ -80,39 +105,56 @@ class Discord
 	{
 		let	index = 0;
 
-		for (let i = 0; i < this.bufferInfo.length; i++)
+		const pfpChange = () =>
 		{
-			if (this.bufferInfo[i].id === message.d.user.id)
+			if (message.d.user.avatar !== undefined)
 			{
-				index = i;
-				break;
+				if (this.bufferInfo[index].pfp === message.d.user.avatar)
+					return ;
+				this.bufferInfo[index].pfp = message.d.user.avatar;
+				this.db.insertPfp(message.d.user.id, message.d.user.avatar);
 			}
 		}
-		if (this.bufferPresence[message.d.user.id])
-		{
-			const	oldStatus				= this.bufferPresence[message.d.user.id];
-			let		web, mobile, desktop;
 
-			web = message.d.client_status.web ? message.d.client_status.web : "offline";
-			mobile = message.d.client_status.mobile ? message.d.client_status.mobile : "offline";
-			desktop = message.d.client_status.desktop ? message.d.client_status.desktop : "offline";
-			if (web !== oldStatus.web)
-				this.db.insertPresence(this.bufferInfo[index].id, "web", web);
-			if (mobile !== oldStatus.mobile)
-				this.db.insertPresence(this.bufferInfo[index].id, "mobile", mobile);
-			if (desktop !== oldStatus.desktop)
-				this.db.insertPresence(this.bufferInfo[index].id, "desktop", desktop);
-			this.bufferPresence[message.d.user.id].web = web;
-			this.bufferPresence[message.d.user.id].mobile = mobile;
-			this.bufferPresence[message.d.user.id].desktop = desktop;
-		}
-		else
+		const statusChange = () =>
 		{
-			this.bufferPresence[message.d.user.id] = {web: message.d.client_status.web ? message.d.client_status.web : "offline", mobile: message.d.client_status.mobile ? message.d.client_status.mobile : "offline", desktop: message.d.client_status.desktop ? message.d.client_status.desktop : "offline"};
-			this.db.insertPresence(this.bufferInfo[index].id, "web", message.d.client_status.web ? message.d.client_status.web : "offline");
-			this.db.insertPresence(this.bufferInfo[index].id, "mobile", message.d.client_status.mobile ? message.d.client_status.mobile : "offline");
-			this.db.insertPresence(this.bufferInfo[index].id, "desktop", message.d.client_status.desktop ? message.d.client_status.desktop : "offline");
+			for (let i = 0; i < this.bufferInfo.length; i++)
+			{
+				if (this.bufferInfo[i].id === message.d.user.id)
+				{
+					index = i;
+					break;
+				}
+			}
+			if (this.bufferPresence[message.d.user.id])
+			{
+				const	oldStatus				= this.bufferPresence[message.d.user.id];
+				let		web, mobile, desktop;
+	
+				web = message.d.client_status.web ? message.d.client_status.web : "offline";
+				mobile = message.d.client_status.mobile ? message.d.client_status.mobile : "offline";
+				desktop = message.d.client_status.desktop ? message.d.client_status.desktop : "offline";
+				if (web !== oldStatus.web)
+					this.db.insertPresence(this.bufferInfo[index].id, "web", web);
+				if (mobile !== oldStatus.mobile)
+					this.db.insertPresence(this.bufferInfo[index].id, "mobile", mobile);
+				if (desktop !== oldStatus.desktop)
+					this.db.insertPresence(this.bufferInfo[index].id, "desktop", desktop);
+				this.bufferPresence[message.d.user.id].web = web;
+				this.bufferPresence[message.d.user.id].mobile = mobile;
+				this.bufferPresence[message.d.user.id].desktop = desktop;
+			}
+			else
+			{
+				this.bufferPresence[message.d.user.id] = {web: message.d.client_status.web ? message.d.client_status.web : "offline", mobile: message.d.client_status.mobile ? message.d.client_status.mobile : "offline", desktop: message.d.client_status.desktop ? message.d.client_status.desktop : "offline"};
+				this.db.insertPresence(this.bufferInfo[index].id, "web", message.d.client_status.web ? message.d.client_status.web : "offline");
+				this.db.insertPresence(this.bufferInfo[index].id, "mobile", message.d.client_status.mobile ? message.d.client_status.mobile : "offline");
+				this.db.insertPresence(this.bufferInfo[index].id, "desktop", message.d.client_status.desktop ? message.d.client_status.desktop : "offline");
+			}
 		}
+
+		statusChange();
+		pfpChange();
 	}
 }
 

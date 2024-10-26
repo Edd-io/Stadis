@@ -1,16 +1,23 @@
 const sqlite3 = require('sqlite3').verbose();
-
+const fs = require('fs');
 class Database
 {
 	constructor()
 	{
-		this.db = new sqlite3.Database('./database.db', (err) => {
+		fs.mkdir('data/pfp', { recursive: true }, (err) => {
 			if (err)
-				console.error(err.message);
+				console.error(err);
 			else
 			{
-				this.createTable();
-				console.log('Connected to the database');
+				this.db = new sqlite3.Database('./data/database.db', (err) => {
+					if (err)
+						console.error(err.message);
+					else
+					{
+						this.createTable();
+						console.log('Connected to the database');
+					}
+				});
 			}
 		});
 	}
@@ -42,7 +49,7 @@ class Database
 			CREATE TABLE IF NOT EXISTS pfp (
 				id INTEGER PRIMARY KEY,
 				account TEXT,
-				url TEXT,
+				path TEXT,
 				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
@@ -52,27 +59,40 @@ class Database
 
 	insertUser(username, id)
 	{
-		this.db.get('SELECT id FROM users WHERE id_discord = ?', [id], (err, row) => {
-			if (err)
-			{
-				console.error(err.message);
-				return;
-			}
-			if (row)
-			{
-				console.log('User already exists');
-				return;
-			}
-			else
-			{
-				this.db.run('INSERT INTO users (username, id_discord) VALUES (?, ?)', [username, id], (err) => {
-					if (err)
-						console.error(err.message);
-					else
-						console.log('User added');
-				});
-			}
+		let promise = null;
+
+		promise = new Promise((resolve) => {
+			this.db.get('SELECT id FROM users WHERE id_discord = ?', [id], (err, row) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(false);
+					return ;
+				}
+				if (row)
+				{
+					console.log('User already exists');
+					resolve(false);
+					return ;
+				}
+				else
+				{
+					this.db.run('INSERT INTO users (username, id_discord) VALUES (?, ?)', [username, id], (err) => {
+						if (err)
+						{
+							console.error(err.message);
+							resolve(false);
+						}
+						else
+						{
+							console.log('User added');
+							resolve(true);
+						}
+					});
+				}
+			});
 		});
+		return (promise);
 	}
 
 	insertPresence(account, device, status)
@@ -87,13 +107,39 @@ class Database
 
 	insertPfp(account, avatar)
 	{
-		const url = "https://cdn.discordapp.com/avatars/" + account + "/" + avatar + ".png?size=1024";
+		async function downloadImage(url, filepath)
+		{
+			const fetch = (await import('node-fetch')).default;
+			const response = await fetch(url);
+			const fileStream = fs.createWriteStream(filepath);
+		
+			return (new Promise((resolve, reject) => {
+				response.body.pipe(fileStream);
+				response.body.on('error', reject);
+				fileStream.on('finish', resolve);
+			}));
+		}
 
-		this.db.run('INSERT INTO pfp (account, url) VALUES (?, ?)', [account, url], (err) => {
+		const		path		= 'data/pfp/' + account + '/' + avatar + '.png';
+		
+		if (avatar === null)
+			return ;
+		fs.mkdir('data/pfp/' + account, { recursive: true }, (err) => {
 			if (err)
-				console.error(err.message);
+				console.error(err);
 			else
-				console.log('Pfp added');
+			{
+				downloadImage('https://cdn.discordapp.com/avatars/' + account + '/' + avatar + '.png?size=1024', path).then(() => {
+					this.db.run('INSERT INTO pfp (account, path) VALUES (?, ?)', [account, path], (err) => {
+						if (err)
+							console.error(err.message);
+						else
+							console.log('Pfp added');
+					});
+				}).catch((err) => {
+					console.error(err);
+				});
+			}
 		});
 	}
 
@@ -103,6 +149,42 @@ class Database
 		
 		promise = new Promise((resolve) => {
 			this.db.all('SELECT * FROM presence WHERE account = ?', [user_id], (err, rows) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(rows);
+			});
+		});
+		return (promise);
+	}
+
+	getLastPfp(user_id)
+	{
+		let	promise = null;
+
+		promise = new Promise((resolve) => {
+			this.db.get('SELECT path FROM pfp WHERE account = ? ORDER BY timestamp DESC LIMIT 1', [user_id], (err, row) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(row);
+			});
+		});
+		return (promise);
+	}
+
+	getUserAllPfp(user_id)
+	{
+		let	promise = null;
+
+		promise = new Promise((resolve) => {
+			this.db.all('SELECT * FROM pfp WHERE account = ?', [user_id], (err, rows) => {
 				if (err)
 				{
 					console.error(err.message);
