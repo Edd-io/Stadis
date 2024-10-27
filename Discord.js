@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const token = require('./secret.json').token;
+const token = require('./secret.json').token_grablist;
 const gatewayUrl = 'wss://gateway.discord.gg/?v=10&encoding=json';
 
 class Discord
@@ -158,14 +158,9 @@ class Discord
 
 		const activitiesChange = () =>
 		{
+			// {type: 0, name: "League of Legends", start: [timestamp], end: [timestamp]}
 			const	gameAct = (activity) =>
 			{
-				if (this.bufferInfo[index].activities.length === 0)
-				{
-					this.bufferInfo[index].activities.push({type: activity.type, name: activity.name, start: new Date(), end: null});
-					return ;
-				}
-
 				for (let i = 0; i < this.bufferInfo[index].activities.length; i++)
 				{
 					if (this.bufferInfo[index].activities[i].name === activity.name)
@@ -181,14 +176,14 @@ class Discord
 					if (this.bufferInfo[index].activities[i].name === activity.name)
 					{
 						this.bufferInfo[index].activities[i].end = new Date();
-						this.db.insertActivity(this.bufferInfo[index].id, this.bufferInfo[index].activities[i].name, this.bufferInfo[index].activities[i].start, this.bufferInfo[index].activities[i].end);
+						if (activity.type === 0)
+							this.db.insertActivity(this.bufferInfo[index].id, this.bufferInfo[index].activities[i].name, this.bufferInfo[index].activities[i].start, this.bufferInfo[index].activities[i].end);
 						this.bufferInfo[index].activities.splice(i, 1);
 						return ;
 					}
 				}
 			}
 
-			
 			for (let i = 0; i < message.d.activities.length; i++)
 			{
 				if (message.d.activities[i].type === 0)
@@ -198,19 +193,20 @@ class Discord
 			{
 				let	found = false;
 
-				for (let j = 0; j < message.d.activities.length; j++)
+				if (this.bufferInfo[index].activities[i].type === 0)
 				{
-					if (this.bufferInfo[index].activities[i].name === message.d.activities[j].name)
+					for (let j = 0; j < message.d.activities.length; j++)
 					{
-						found = true;
-						break;
+						if (this.bufferInfo[index].activities[i].name === message.d.activities[j].name)
+						{
+							found = true;
+							break;
+						}
 					}
+					if (!found && this.bufferInfo[index].activities[i])
+						activityEnd(this.bufferInfo[index].activities[i]);
 				}
-				if (!found)
-					activityEnd(this.bufferInfo[index].activities[i]);
 			}
-
-
 		}
 
 		statusChange();

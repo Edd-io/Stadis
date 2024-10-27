@@ -64,6 +64,16 @@ class Database
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
 		`);
+		this.db.run(`
+			CREATE TABLE IF NOT EXISTS custom_status (
+				id INTEGER PRIMARY KEY,
+				account TEXT,
+				text TEXT,
+				emoji TEXT,
+				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
+			)
+		`);
 	}
 
 
