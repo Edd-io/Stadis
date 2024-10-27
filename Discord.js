@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const { token } = require('./secret.json');
+const token = require('./secret.json').token;
 const gatewayUrl = 'wss://gateway.discord.gg/?v=10&encoding=json';
 
 class Discord
@@ -18,6 +18,7 @@ class Discord
 	connect()
 	{
 		this.websocket = new WebSocket(gatewayUrl);
+		const	thisClass = this;
 
 		this.websocket.on('open', () => {
 			console.log('Connected');
@@ -60,11 +61,11 @@ class Discord
 		});
 
 		this.websocket.on('close', () => {
-			this.websocket = null;
-			bufferInfo = [];
-			bufferPresence = {};
-			console.log('Disconnected\nReconnecting...');
-			this.connect();
+			thisClass.websocket = null;
+			thisClass.bufferInfo = [];
+			thisClass.bufferPresence = {};
+			console.log('Reconnecting...');
+			thisClass.connect();
 		});
 	}
 
@@ -80,16 +81,18 @@ class Discord
 	{
 		for (let i = 0; i < message.d.relationships.length; i++)
 		{
-			this.bufferInfo.push({username: message.d.relationships[i].user.username, id: message.d.relationships[i].user.id, pfp: message.d.relationships[i].user.avatar});
+			this.bufferInfo.push({username: message.d.relationships[i].user.username, id: message.d.relationships[i].user.id, pfp: message.d.relationships[i].user.avatar, activities: []});
 			this.db.insertUser(message.d.relationships[i].user.username, message.d.relationships[i].user.id).then((bool) => {
 				if (!bool)
 				{
 					this.db.getLastPfp(message.d.relationships[i].user.id).then((userPfp) => {
+						if (userPfp === null)
+							return ;
 						if (userPfp === undefined || userPfp.length === 0)
 							this.db.insertPfp(message.d.relationships[i].user.id, message.d.relationships[i].user.avatar);
 						else
 						{
-							if (userPfp.url !== "https://cdn.discordapp.com/avatars/" + message.d.relationships[i].user.id + "/" + message.d.relationships[i].user.avatar + ".png?size=1024")
+							if (userPfp.path !== "data/pfp/" + message.d.relationships[i].user.id + "/" + message.d.relationships[i].user.avatar + ".png")
 								this.db.insertPfp(message.d.relationships[i].user.id, message.d.relationships[i].user.avatar);
 						}
 					});
@@ -153,8 +156,66 @@ class Discord
 			}
 		}
 
+		const activitiesChange = () =>
+		{
+			const	gameAct = (activity) =>
+			{
+				if (this.bufferInfo[index].activities.length === 0)
+				{
+					this.bufferInfo[index].activities.push({type: activity.type, name: activity.name, start: new Date(), end: null});
+					return ;
+				}
+
+				for (let i = 0; i < this.bufferInfo[index].activities.length; i++)
+				{
+					if (this.bufferInfo[index].activities[i].name === activity.name)
+						return ;
+				}
+				this.bufferInfo[index].activities.push({type: activity.type, name: activity.name, start: new Date(), end: null});
+			}
+
+			const	activityEnd = (activity) =>
+			{
+				for (let i = 0; i < this.bufferInfo[index].activities.length; i++)
+				{
+					if (this.bufferInfo[index].activities[i].name === activity.name)
+					{
+						this.bufferInfo[index].activities[i].end = new Date();
+						this.db.insertActivity(this.bufferInfo[index].id, this.bufferInfo[index].activities[i].name, this.bufferInfo[index].activities[i].start, this.bufferInfo[index].activities[i].end);
+						this.bufferInfo[index].activities.splice(i, 1);
+						return ;
+					}
+				}
+			}
+
+			
+			for (let i = 0; i < message.d.activities.length; i++)
+			{
+				if (message.d.activities[i].type === 0)
+					gameAct(message.d.activities[i]);
+			}
+			for (let i = 0; i < this.bufferInfo[index].activities.length; i++)
+			{
+				let	found = false;
+
+				for (let j = 0; j < message.d.activities.length; j++)
+				{
+					if (this.bufferInfo[index].activities[i].name === message.d.activities[j].name)
+					{
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					activityEnd(this.bufferInfo[index].activities[i]);
+			}
+
+
+		}
+
 		statusChange();
 		pfpChange();
+		activitiesChange();
 	}
 }
 

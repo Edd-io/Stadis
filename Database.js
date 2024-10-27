@@ -53,7 +53,17 @@ class Database
 				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
-		`)
+		`);
+		this.db.run(`
+			CREATE TABLE IF NOT EXISTS activity (
+				id INTEGER PRIMARY KEY,
+				account TEXT,
+				activity TEXT,
+				start DATETIME,
+				end DATETIME,
+				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
+			)
+		`);
 	}
 
 
@@ -143,6 +153,16 @@ class Database
 		});
 	}
 
+	insertActivity(account, activity, start, end)
+	{
+		this.db.run('INSERT INTO activity (account, activity, start, end) VALUES (?, ?, ?, ?)', [account, activity, start, end], (err) => {
+			if (err)
+				console.error(err.message);
+			else
+				console.log('Activity added');
+		});
+	}
+
 	getUserPresence(user_id)
 	{
 		let	promise = null;
@@ -185,6 +205,24 @@ class Database
 
 		promise = new Promise((resolve) => {
 			this.db.all('SELECT * FROM pfp WHERE account = ?', [user_id], (err, rows) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(rows);
+			});
+		});
+		return (promise);
+	}
+
+	getUserActivity(user_id)
+	{
+		let	promise = null;
+
+		promise = new Promise((resolve) => {
+			this.db.all('SELECT * FROM activity WHERE account = ?', [user_id], (err, rows) => {
 				if (err)
 				{
 					console.error(err.message);

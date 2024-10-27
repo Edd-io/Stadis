@@ -53,6 +53,28 @@ class Api
 		});
 	}
 
+	static getUserActivity(req, res, database)
+	{
+		if (!req.body.user_id)
+		{
+			res.send({error: 'Missing user_id'});
+			return;
+		}
+		
+		const user_id = req.body.user_id;
+		database.getUserActivity(user_id).then((activity) => {
+			const	data = [];
+			if (!activity)
+			{
+				res.send({error: 'User not found'});
+				return;
+			}
+			activity.forEach((row) => {
+				data.push({name: row.activity, start: row.start, end: row.end});
+			});
+			res.send(data);
+		});
+	}
 }
 
 exports.Api = Api;

@@ -3,12 +3,19 @@ const Database = require('./Database');
 const express = require('express');
 const apiImport = require('./api');
 
+/*
+	Todo (Eddy) :
+		- catch CTRL+C for close the database and the websocket
+		- new table for server (this program) activity
+*/
+
 function configApi(app, database)
 {
 	const api = apiImport.Api;
 
 	app.post('/api/get_user_presence', (req, res) => {api.getUserPresense(req, res, database)});
 	app.post('/api/get_user_all_pfp', (req, res) => {api.getUserAllPfp(req, res, database)});
+	app.post('/api/get_user_activity', (req, res) => {api.getUserActivity(req, res, database)});
 }
 
 function webServer(database)
