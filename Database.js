@@ -68,9 +68,9 @@ class Database
 			CREATE TABLE IF NOT EXISTS custom_status (
 				id INTEGER PRIMARY KEY,
 				account TEXT,
+				start DATETIME,
+				end DATETIME,
 				text TEXT,
-				emoji TEXT,
-				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
 		`);
@@ -163,6 +163,16 @@ class Database
 		});
 	}
 
+	insertCustomActivity(account, text, start, end)
+	{
+		this.db.run('INSERT INTO custom_status (account, text, start, end) VALUES (?, ?, ?, ?)', [account, text, start, end], (err) => {
+			if (err)
+				console.error(err.message);
+			else
+				console.log('Custom activity added');
+		});
+	}
+
 	insertActivity(account, activity, start, end)
 	{
 		this.db.run('INSERT INTO activity (account, activity, start, end) VALUES (?, ?, ?, ?)', [account, activity, start, end], (err) => {
@@ -233,6 +243,24 @@ class Database
 
 		promise = new Promise((resolve) => {
 			this.db.all('SELECT * FROM activity WHERE account = ?', [user_id], (err, rows) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(rows);
+			});
+		});
+		return (promise);
+	}
+
+	getUserCustomActivity(user_id)
+	{
+		let	promise = null;
+
+		promise = new Promise((resolve) => {
+			this.db.all('SELECT * FROM custom_status WHERE account = ?', [user_id], (err, rows) => {
 				if (err)
 				{
 					console.error(err.message);

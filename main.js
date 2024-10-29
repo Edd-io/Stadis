@@ -16,6 +16,7 @@ function configApi(app, database)
 	app.post('/api/get_user_presence', (req, res) => {api.getUserPresense(req, res, database)});
 	app.post('/api/get_user_all_pfp', (req, res) => {api.getUserAllPfp(req, res, database)});
 	app.post('/api/get_user_activity', (req, res) => {api.getUserActivity(req, res, database)});
+	app.post('/api/get_user_custom_activity', (req, res) => {api.getUserCustomActivity(req, res, database)});
 }
 
 function webServer(database)

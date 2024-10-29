@@ -8,7 +8,6 @@ class Api
 			return;
 		}
 		
-		console.log('Request user presence for user_id: ' + req.body.user_id);
 		const user_id = req.body.user_id;
 		database.getUserPresence(user_id).then((presence) => {
 			const	data = {desktop: [], mobile: [], web: []};
@@ -63,6 +62,29 @@ class Api
 		
 		const user_id = req.body.user_id;
 		database.getUserActivity(user_id).then((activity) => {
+			const	data = [];
+			if (!activity)
+			{
+				res.send({error: 'User not found'});
+				return;
+			}
+			activity.forEach((row) => {
+				data.push({name: row.activity, start: row.start, end: row.end});
+			});
+			res.send(data);
+		});
+	}
+
+	static getUserCustomActivity(req, res, database)
+	{
+		if (!req.body.user_id)
+		{
+			res.send({error: 'Missing user_id'});
+			return;
+		}
+		
+		const user_id = req.body.user_id;
+		database.getUserCustomActivity(user_id).then((activity) => {
 			const	data = [];
 			if (!activity)
 			{

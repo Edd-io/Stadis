@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const token = require('./secret.json').token_grablist;
+const token = require('./secret.json').token_nexa;
 const gatewayUrl = 'wss://gateway.discord.gg/?v=10&encoding=json';
 
 class Discord
@@ -7,6 +7,7 @@ class Discord
 	websocket = null;
 	bufferInfo = [];
 	bufferPresence = {};
+	bufferCustomActivity = [];
 	db = null;
 
 	constructor(database)
@@ -158,7 +159,6 @@ class Discord
 
 		const activitiesChange = () =>
 		{
-			// {type: 0, name: "League of Legends", start: [timestamp], end: [timestamp]}
 			const	gameAct = (activity) =>
 			{
 				for (let i = 0; i < this.bufferInfo[index].activities.length; i++)
@@ -167,6 +167,23 @@ class Discord
 						return ;
 				}
 				this.bufferInfo[index].activities.push({type: activity.type, name: activity.name, start: new Date(), end: null});
+			}
+
+			const	customAct = (activity) =>
+			{
+				for (let i = 0; i < this.bufferCustomActivity.length; i++)
+				{
+					if (this.bufferCustomActivity[i].id === message.d.user.id)
+					{
+						if (this.bufferCustomActivity[i].state === activity.state)
+							return ;
+						this.db.insertCustomActivity(this.bufferCustomActivity[i].id, this.bufferCustomActivity[i].state, this.bufferCustomActivity[i].start, new Date());
+						this.bufferCustomActivity[i].state = activity.state;
+						this.bufferCustomActivity[i].start = new Date();
+						return ;	
+					}
+				}
+				this.bufferCustomActivity.push({id: message.d.user.id, state: activity.state, start: new Date()});
 			}
 
 			const	activityEnd = (activity) =>
@@ -188,6 +205,8 @@ class Discord
 			{
 				if (message.d.activities[i].type === 0)
 					gameAct(message.d.activities[i]);
+				if (message.d.activities[i].type === 4)
+					customAct(message.d.activities[i]);
 			}
 			for (let i = 0; i < this.bufferInfo[index].activities.length; i++)
 			{
@@ -207,8 +226,33 @@ class Discord
 						activityEnd(this.bufferInfo[index].activities[i]);
 				}
 			}
-		}
+			for (let i = 0; i < this.bufferCustomActivity.length; i++)
+			{
+				let	foundCustomActivity = false;
+					
+				for (let j = 0; j < message.d.activities.length; j++)
+				{
+					if (message.d.activities[j].type === 4)
+					{
+						foundCustomActivity = true;
+						break;
+					}
+				}
+				if (!foundCustomActivity)
+				{
+					for (let j = 0; j < this.bufferCustomActivity.length; j++)
+					{
+						if (this.bufferCustomActivity[j].id === message.d.user.id)
+						{
+							this.db.insertCustomActivity(this.bufferCustomActivity[j].id, this.bufferCustomActivity[j].state, this.bufferCustomActivity[j].start, new Date());
+							this.bufferCustomActivity.splice(j, 1);
+							break;
+						}
+					}
+				}
 
+			}
+		}
 		statusChange();
 		pfpChange();
 		activitiesChange();
