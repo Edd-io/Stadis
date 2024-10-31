@@ -165,6 +165,18 @@ class Database
 
 	insertCustomActivity(account, text, start, end)
 	{
+		const	lastCustomActivity = this.getUserLastCustomActivity(account);
+
+		if (lastCustomActivity !== null && lastCustomActivity.text === text) 
+		{
+			this.db.run('UPDATE custom_status SET end = ? WHERE account = ? AND text = ?', [end, account, text], (err) => {
+				if (err)
+					console.error(err.message);
+				else
+					console.log('Custom activity updated');
+			});
+			return ;
+		}
 		this.db.run('INSERT INTO custom_status (account, text, start, end) VALUES (?, ?, ?, ?)', [account, text, start, end], (err) => {
 			if (err)
 				console.error(err.message);
@@ -250,6 +262,24 @@ class Database
 				}
 				else
 					resolve(rows);
+			});
+		});
+		return (promise);
+	}
+
+	getUserLastCustomActivity(user_id)
+	{
+		let	promise = null;
+
+		promise = new Promise((resolve) => {
+			this.db.get('SELECT * FROM custom_status WHERE account = ? ORDER BY start DESC LIMIT 1', [user_id], (err, row) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(row);
 			});
 		});
 		return (promise);
