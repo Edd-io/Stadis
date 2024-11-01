@@ -21,6 +21,8 @@ function configApi(app, database)
 
 function webServer(database)
 {
+	const fs = require('fs');
+	const index_content = fs.readFileSync('website/index.html', 'utf8');
 	const app = express();
 	const port = 3000;
 
@@ -28,22 +30,58 @@ function webServer(database)
 	app.use(express.static('data/pfp'));
 
 	app.get('/', (req, res) => {
-		res.sendFile(__dirname + '/website/index.html');
+		const	page = 'home';
+		let		copy = index_content;
+
+		copy = copy.replace("{{stylesheet}}", page);
+		copy = copy.replace("{{script}}", page);
+		res.send(copy);
 	});
 
-	app.get('/profile', (req, res) => {
-		res.sendFile(__dirname + '/website/profile.html');
+	app.get('/search', (req, res) => {
+		const	page = 'search';
+		let		copy = index_content;
+
+		copy = copy.replace("{{stylesheet}}", page);
+		copy = copy.replace("{{script}}", page);
+		res.send(copy);
 	});
 
-	app.get('/style.css', (req, res) => {
-		res.sendFile(__dirname + '/website/style.css');
+	app.get('/raw', (req, res) => {
+		const	page = 'raw';
+		let		copy = index_content;
+
+		copy = copy.replace("{{stylesheet}}", page);
+		copy = copy.replace("{{script}}", page);
+		res.send(copy);
 	});
 
-	app.get('/script.js', (req, res) => {
-		res.sendFile(__dirname + '/website/script.js');
+	app.get('/settings', (req, res) => {
+		const	page = 'settings';
+		let		copy = index_content;
+
+		copy = copy.replace("{{stylesheet}}", page);
+		copy = copy.replace("{{script}}", page);
+		res.send(copy);
 	});
 
-	configApi(app, database);
+	app.get('/css/:css.css', (req, res) => {
+		const css = fs.readFileSync(`website/css/${req.params.css}.css`, 'utf8');
+		res.send(css);
+	});
+
+	app.get('/js/:js.js', (req, res) => {
+		const js = fs.readFileSync(`website/js/${req.params.js}.js`, 'utf8');
+		res.send(js);
+	});
+
+	app.get('/ico/:ico', (req, res) => {
+		const icon = fs.readFileSync(`website/ico/${req.params.ico}`, 'binary');
+		res.type('image/svg+xml');
+		res.send(icon);
+	});
+
+	// configApi(app, database);
 
 	app.listen(port, () => {
 		console.log(`Example app listening at http://localhost:${port}`);
@@ -56,9 +94,9 @@ function main()
 	let		discord		= null;
 
 	webServer(database);
-	setTimeout(() => {
- 		discord = new Discord.Discord(database);
-	}, 1000);
+	// setTimeout(() => {
+ 	// 	discord = new Discord.Discord(database);
+	// }, 1000);
 
 }
 

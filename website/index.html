@@ -1,74 +1,20 @@
 <html>
 	<head>
-		<title>Stadis</title>
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-		<link rel="stylesheet" type="text/css" href="style.css">
-		<script src="https://cdnjs.com/libraries/Chart.js"></script>
+		<title>Website</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css">
+		<link rel="stylesheet" type="text/css" href="/css/{{stylesheet}}.css">
+		<script src="/js/{{script}}.js"></script>
 	</head>
 	<body>
-		<div id="header">
-			<div id="header-logo">
-				<h1>Stadis</h1>
-			</div>
-			<input type="text" id="search" placeholder="Search">
-			<div id="header-nav">
-				<ul>
-					<li>Home</li>
-					<li>Github</li>
-				</ul>
-			</div>
+		<div class="button-container">
+			<button class="button pressed"><img class="pfp-img" src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png"></button>
+			<button class="button"><img src="/ico/search.svg"></button>
+			<button class="button"><img src="/ico/raw.svg"></button>
+			<button class="button"><img src="/ico/settings.svg"></button>
+			<button class="button" id="github-button"><img src="/ico/github.svg"></button>
 		</div>
-		<div class="dashboard-item no-space" id="information">
-			<h2>Account used</h2>
-			<div class="dashboard-item-content">
-				<div class="dashboard-item-content-item">
-					<p>Username</p>
-					<p class="important">test</p>
-				</div>
-				<div class="dashboard-item-content-item">
-					<p>Status</p>
-					<p class="important">Online</p>
-				</div>
-				<div class="dashboard-item-content-item">
-					<p>Id</p>
-					<p class="important">432432874932</p>
-				</div>
-				<div class="dashboard-item-content-item">
-					<p>Connected since</p>
-					<p class="important">12/12/2021 12:12:12</p>
-				</div>
-			</div>
+		<div class="content-container">
+			<!-- REPTHIS -->
 		</div>
-		<div id="dashboard">
-			<div class="dashboard-item no-space">
-				<h3>Information</h3>
-				<div class="dashboard-item-content-item">
-					<p>Users monitored</p>
-					<p class="important">12</p>
-				</div>
-				<div class="dashboard-item-content-item">
-					<p>Status</p>
-					<p class="important">12</p>
-				</div>
-				<div class="dashboard-item-content-item">
-					<p>Time message</p>
-					<p class="important">12</p>
-				</div>
-			</div>
-			<div class="dashboard-item">
-				<h3>Users status</h3>
-				<canvas id="user-status" alt="user-status"></canvas>
-				<p>ici un graph camembert avec les users connected/dnd/idle/offline</p>
-			</div>
-
-
-			<div class="dashboard-item">
-				<p>test</p>
-			</div>
-			<div class="dashboard-item">
-				<p>test</p>
-			</div>
 	</body>
 </html>
