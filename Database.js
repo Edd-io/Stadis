@@ -74,6 +74,16 @@ class Database
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
 		`);
+		this.db.run(`
+			CREATE TABLE IF NOT EXISTS listen_music (
+				id INTEGER PRIMARY KEY,
+				account TEXT,
+				name TEXT,
+				artist TEXT,
+				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
+			)
+		`);
 	}
 
 
@@ -192,6 +202,16 @@ class Database
 				console.error(err.message);
 			else
 				console.log('Activity added');
+		});
+	}
+
+	insertMusic(account, name, artist)
+	{
+		this.db.run('INSERT INTO listen_music (account, name, artist) VALUES (?, ?, ?)', [account, name, artist], (err) => {
+			if (err)
+				console.error(err.message);
+			else
+				console.log('music added');
 		});
 	}
 

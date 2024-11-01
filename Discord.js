@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const token = require('./secret.json').token_nexa;
+const token = require('./secret.json').token;
 const gatewayUrl = 'wss://gateway.discord.gg/?v=10&encoding=json';
 
 class Discord
@@ -8,6 +8,7 @@ class Discord
 	bufferInfo = [];
 	bufferPresence = {};
 	bufferCustomActivity = [];
+	bufferMusic = [];
 	db = null;
 
 	constructor(database)
@@ -169,6 +170,25 @@ class Discord
 				this.bufferInfo[index].activities.push({type: activity.type, name: activity.name, start: new Date(), end: null});
 			}
 
+			const	musicAct = (activity) =>
+			{
+				console.log(`[${this.bufferInfo[index].username}] ${activity.details} by ${activity.state}`);
+				for (let i = 0; i < this.bufferMusic.length; i++)
+				{
+					if (this.bufferMusic[i].id === message.d.user.id)
+					{
+						if (this.bufferMusic[i].name === activity.details && this.bufferMusic[i].artist === activity.state)
+							return ;
+						this.bufferMusic[i].name = activity.details;
+						this.bufferMusic[i].artist = activity.state;
+						this.db.insertMusic(this.bufferMusic[i].id, this.bufferMusic[i].name, this.bufferMusic[i].artist);
+						return ;
+					}
+				}
+				this.bufferMusic.push({id: message.d.user.id, name: activity.details, artist: activity.state});
+				this.db.insertMusic(message.d.user.id, activity.details, activity.state);
+			}
+
 			const	customAct = (activity) =>
 			{
 				for (let i = 0; i < this.bufferCustomActivity.length; i++)
@@ -205,7 +225,9 @@ class Discord
 			{
 				if (message.d.activities[i].type === 0)
 					gameAct(message.d.activities[i]);
-				if (message.d.activities[i].type === 4)
+				else if (message.d.activities[i].type === 2)
+					musicAct(message.d.activities[i]);
+				else if (message.d.activities[i].type === 4)
 					customAct(message.d.activities[i]);
 			}
 			for (let i = 0; i < this.bufferInfo[index].activities.length; i++)
