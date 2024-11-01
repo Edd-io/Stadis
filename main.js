@@ -81,6 +81,12 @@ function webServer(database)
 		res.send(icon);
 	});
 
+	app.get('/font/:font', (req, res) => {
+		const font = fs.readFileSync(`website/font/${req.params.font}`, 'binary');
+		res.type('font/woff2');
+		res.send(font);
+	});
+
 	// configApi(app, database);
 
 	app.listen(port, () => {
