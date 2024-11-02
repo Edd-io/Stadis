@@ -1,0 +1,153 @@
+.left-part {
+	width: 30%;
+	display: flex;
+	flex-direction: column;
+}
+
+.right-part {
+	width: 70%;
+	display: flex;
+	flex-direction: column;
+}
+
+.tile {
+	display: flex;
+	flex-direction: column;
+	background-color: var(--bg-default-color);
+	border-radius: 10px;
+	margin-bottom: 20px;
+	box-shadow: 1px 4px 1px rgba(0, 0, 0, 0.2);
+}
+
+.tile-pfp {
+	width: 95%;
+	padding-block: 20px;
+}
+
+#pfp-img-tile {
+	width: 90%;
+	border-radius: 50%;
+	margin-inline: auto;
+}
+
+.left-part .info {
+	width: calc(95% - 20px);
+	padding: 10px;
+}
+
+.left-part .info p {
+	width: 100%;
+	margin-top: 5px;
+	padding-bottom: 5px;
+	position: relative;
+	font-weight: bold;
+	border-bottom: 1px solid var(--default-color);
+}
+
+.left-part .info span {
+	position: absolute;
+	font-weight: normal;
+	right: 0;
+}
+
+.right-part .tile h1 {
+	margin: 10px;
+	margin-top: 0;
+}
+
+.right-part .tile {
+	padding-block: 20px;
+	padding-inline: 30px;
+	width: calc(100% - 60px);
+}
+
+.right-part #presence-graph {
+	width: 100%;
+	height: 200px;
+	background-color: burlywood;
+}
+
+.right-part #graph-activity {
+	width: 100%;
+	height: 125px;
+	background-color: rgb(146, 196, 96);
+}
+
+.double-tile {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.double-tile h1 {
+	text-align: center;
+	font-size: 24px;
+}
+
+.mozaic-pfp {
+	width: 100%;
+	height: 200px;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	grid-gap: 5px;
+	overflow-y: auto;
+}
+
+.mozaic-pfp img {
+	width: 95%;
+	height: 95%;
+	border-radius: 10px;
+	object-fit: cover;
+	object-position: center;
+}
+
+.about-me-lines {
+	overflow-y: auto;
+	height: 100%;
+	width: 64%;
+}
+
+.about-me-lines p {
+	padding: 5px;
+}
+
+.about-me-lines p:nth-child(odd) {
+	background-color: var(--default-color);
+}
+
+.about-me-lines p:hover {
+	background-color: var(--accent-color);
+	color: white;
+}
+
+.scrool-tile {
+	overflow-y: auto;
+	height: 200px;
+}
+
+.scrool-tile p {
+	padding: 5px;
+}
+
+.scrool-tile p:nth-child(odd) {
+	background-color: var(--default-color);
+}
+
+@media screen and (max-aspect-ratio: 1/1) {
+	.left-part {
+		width: 100%;
+		position: relative;
+	}
+
+	.right-part {
+		width: 100%;
+	}
+
+	.tile {
+		width: 100%;
+	}
+
+	.left-part .info {
+		width: calc(100% - 20px);
+	}
+}

@@ -1,6 +1,7 @@
 :root {
 	--bg-default-color: #ECECEC;
 	--default-color: #D9D9D9;
+	--accent-color: #6b6b6b;
 }
 
 * {
@@ -98,8 +99,23 @@ body {
 .content-container {
 	background-color: var(--default-color);
 	border-radius: 10px;
-	width: calc(100vw - 90px);
-	height: calc(100vh - 40px);
+	width: calc(100vw - 130px);
+	height: calc(100vh - 80px);
 	box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.5);
 	margin-top: 20px;
+	padding: 20px;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	overflow: auto;
+	position: relative;
+}
+
+@media screen and (max-aspect-ratio: 1/1) {
+	.content-container {
+		width: 100%;
+		flex-direction: column;
+		justify-content: normal;
+		align-items: normal;
+	}
 }

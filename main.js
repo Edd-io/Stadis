@@ -22,7 +22,6 @@ function configApi(app, database)
 function webServer(database)
 {
 	const fs = require('fs');
-	const index_content = fs.readFileSync('website/index.html', 'utf8');
 	const app = express();
 	const port = 3000;
 
@@ -30,6 +29,7 @@ function webServer(database)
 	app.use(express.static('data/pfp'));
 
 	app.get('/', (req, res) => {
+		let		index_content = fs.readFileSync('website/index.html', 'utf8');
 		const	page = 'home';
 		let		copy = index_content;
 
@@ -38,7 +38,21 @@ function webServer(database)
 		res.send(copy);
 	});
 
+	app.get('/user', (req, res) => {
+		let		index_content = fs.readFileSync('website/index.html', 'utf8');
+		let		content = fs.readFileSync('website/html/user.html', 'utf8');
+		const	page = 'user';
+		let		copy = index_content;
+
+		copy = copy.replace("{{stylesheet}}", page);
+		copy = copy.replace("{{script}}", page);
+		copy = copy.replace("{{content}}", content);
+		//add all user data
+		res.send(copy);
+	});
+
 	app.get('/search', (req, res) => {
+		let		index_content = fs.readFileSync('website/index.html', 'utf8');
 		const	page = 'search';
 		let		copy = index_content;
 
@@ -48,6 +62,7 @@ function webServer(database)
 	});
 
 	app.get('/raw', (req, res) => {
+		let		index_content = fs.readFileSync('website/index.html', 'utf8');
 		const	page = 'raw';
 		let		copy = index_content;
 
@@ -57,6 +72,7 @@ function webServer(database)
 	});
 
 	app.get('/settings', (req, res) => {
+		let		index_content = fs.readFileSync('website/index.html', 'utf8');
 		const	page = 'settings';
 		let		copy = index_content;
 
