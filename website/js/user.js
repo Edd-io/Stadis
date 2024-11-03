@@ -1,11 +1,18 @@
 const	timeToRefresh = 16;
-let		g_data = null;
+let		data_status = null;
+let		data_activity = null;
 let		minTimestampStatus = null;
 let		maxTimestampStatus = null;
+let		minTimestampActivity = null;
+let		maxTimestampActivity = null;
+let 	timeout = null;
+let 	timeout2 = null;
+let 	timeout3 = null;
+let 	interval = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-	console.log("User page loaded");
 	getDataGraphStatus();
+	getDataGraphActivity();
 	getDataAllPfp();
 	getCustomActivity();
 	getUserListenMusic();
@@ -30,19 +37,14 @@ function getDataGraphStatus()
 		else
 			throw new Error('Error');
 	}).then((data_fetch) => {
-		g_data = data_fetch;
-		minTimestampStatus = g_data.firstTimestamp;
-		maxTimestampStatus = g_data.lastTimestamp;
+		data_status = data_fetch;
+		minTimestampStatus = data_status.firstTimestamp;
+		maxTimestampStatus = data_status.lastTimestamp;
 		createGraphStatus();
 	}).catch((error) => {
 		console.error(error);
 	});
 }
-
-let timeout = null;
-let timeout2 = null;
-let timeout3 = null;
-let interval = null;
 
 function zoomInGraphStatus()
 {
@@ -51,13 +53,13 @@ function zoomInGraphStatus()
 	if (interval)
 		clearInterval(interval);
 	interval = setInterval(() => {
-		if (g_data.lastTimestamp - g_data.firstTimestamp < 1000000)
+		if (data_status.lastTimestamp - data_status.firstTimestamp < 1000000)
 		{
 			clearInterval(interval);
 			return;
 		}
-		g_data.firstTimestamp += (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
-		g_data.lastTimestamp -= (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
+		data_status.firstTimestamp += (data_status.lastTimestamp - data_status.firstTimestamp) / 25;
+		data_status.lastTimestamp -= (data_status.lastTimestamp - data_status.firstTimestamp) / 25;
 		createGraphStatus();
 		i++;
 		if (i === 12)
@@ -73,10 +75,10 @@ function zoomOutGraphStatus()
 	if (interval)
 		clearInterval(interval);
 	interval = setInterval(() => {
-		if (g_data.lastTimestamp - g_data.firstTimestamp < maxTimestampStatus - minTimestampStatus)
+		if (data_status.lastTimestamp - data_status.firstTimestamp < maxTimestampStatus - minTimestampStatus)
 		{
-			g_data.firstTimestamp -= (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
-			g_data.lastTimestamp += (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
+			data_status.firstTimestamp -= (data_status.lastTimestamp - data_status.firstTimestamp) / 25;
+			data_status.lastTimestamp += (data_status.lastTimestamp - data_status.firstTimestamp) / 25;
 			createGraphStatus();
 		}
 		i++;
@@ -92,9 +94,9 @@ function  moveLeftGraphStatus()
 	if (interval)
 		clearInterval(interval);
 	interval = setInterval(() => {
-		const time = g_data.lastTimestamp - g_data.firstTimestamp;
-		g_data.firstTimestamp -= (time / 200);
-		g_data.lastTimestamp -= (time / 200);
+		const time = data_status.lastTimestamp - data_status.firstTimestamp;
+		data_status.firstTimestamp -= (time / 200);
+		data_status.lastTimestamp -= (time / 200);
 		createGraphStatus();
 		i++;
 		if (i === 25)
@@ -109,9 +111,9 @@ function moveRightGraphStatus()
 	if (interval)
 		clearInterval(interval);
 	interval = setInterval(() => {
-		const time = g_data.lastTimestamp - g_data.firstTimestamp;
-		g_data.firstTimestamp += (time / 200);
-		g_data.lastTimestamp += (time / 200);
+		const time = data_status.lastTimestamp - data_status.firstTimestamp;
+		data_status.firstTimestamp += (time / 200);
+		data_status.lastTimestamp += (time / 200);
 		createGraphStatus();
 		i++;
 		if (i === 25)
@@ -126,10 +128,10 @@ function createGraphStatus()
 	const	bounds		= canvas.getBoundingClientRect();
 	const	width		= bounds.width;
 	const	height		= bounds.height;
-	const	start		= new Date(g_data.firstTimestamp);
-	const	end			= new Date(g_data.lastTimestamp);
+	const	start		= new Date(data_status.firstTimestamp);
+	const	end			= new Date(data_status.lastTimestamp);
 	const	color		= {online: '#3BA55C', dnd: '#ED4245', idle: '#FAA61A', offline: '#747F8D'};
-	const	arr			= [g_data.desktop, g_data.mobile, g_data.web];
+	const	arr			= [data_status.desktop, data_status.mobile, data_status.web];
 	const	dataGraph	= {desktop: [], mobile: [], web: []};
 
 	canvas.width = width;
@@ -220,7 +222,7 @@ function createGraphStatus()
 					if (mouseX > dataGraph.desktop[i].x && mouseX < dataGraph.desktop[i].x + dataGraph.desktop[i].width)
 					{
 						divInfo.style.top = '5px';
-						divInfo.style.left = mouseX - 70 + 'px';
+						divInfo.style.left = mouseX - 77 + 'px';
 						divInfo.children[0].textContent = 'Desktop';
 						divInfo.children[1].textContent = dataGraph.desktop[i].status;
 						divInfo.children[2].style.fontSize = '12px';
@@ -241,7 +243,7 @@ function createGraphStatus()
 					if (mouseX > dataGraph.mobile[i].x && mouseX < dataGraph.mobile[i].x + dataGraph.mobile[i].width)
 					{
 						divInfo.style.top = '50px';
-						divInfo.style.left = mouseX - 70 + 'px';
+						divInfo.style.left = mouseX - 77 + 'px';
 						divInfo.children[0].textContent = 'Mobile';
 						divInfo.children[1].textContent = dataGraph.mobile[i].status;
 						divInfo.children[2].style.fontSize = '12px';
@@ -266,12 +268,11 @@ function createGraphStatus()
 					if (mouseX > dataGraph.web[i].x && mouseX < dataGraph.web[i].x + dataGraph.web[i].width)
 					{
 						divInfo.style.top = '85px';
-						divInfo.style.left = mouseX - 70 + 'px';
+						divInfo.style.left = mouseX - 77 + 'px';
 						divInfo.children[0].textContent = 'Web';
 						divInfo.children[1].textContent = dataGraph.web[i].status;
 						divInfo.children[2].style.fontSize = '12px';
 						divInfo.children[2].textContent = new Date(dataGraph.web[i].timestamp).toLocaleString() + ' - ' + new Date(dataGraph.web[i + 1] ? dataGraph.web[i + 1].timestamp : new Date().getTime()).toLocaleString();
-						createGraphStatus();
 						ctx.fillStyle = 'black';
 						found = true;
 						break;
@@ -279,10 +280,248 @@ function createGraphStatus()
 				}
 			}
 			if (!found)
-			{
 				divInfo.style.display = 'none';
-				createGraphStatus();
+			else
+				divInfo.style.display = 'block';
+		}, 1);
+	}
+	canvas.removeEventListener('mousemove', showInfo);
+	canvas.addEventListener('mousemove', showInfo);
+
+	function useWhell(e)
+	{
+		e.preventDefault();
+		if (timeout2)
+			clearTimeout(timeout2);
+		timeout2 = setTimeout(() => {
+			if (e.deltaY < 0)
+			{
+				const	mouseX = e.clientX - bounds.left;
+				const	percentage = mouseX / width;
+				const	time = end - start;
+				const	newTime = time * 0.9;
+				const	newStart = new Date(start.getTime() + time * percentage - newTime * percentage);
+				const	newEnd = new Date(newStart.getTime() + newTime);
+				if (newEnd.getTime() - newStart.getTime() < 1000000)
+					return;
+				data_status.firstTimestamp = newStart.getTime();
+				data_status.lastTimestamp = newEnd.getTime();
 			}
+			else
+			{
+				const	mouseX = e.clientX - bounds.left;
+				const	percentage = mouseX / width;
+				const	time = end - start;
+				const	newTime = time / 0.9;
+				const	newStart = new Date(start.getTime() + time * percentage - newTime * percentage);
+				const	newEnd = new Date(newStart.getTime() + newTime);
+				if (newEnd.getTime() - newStart.getTime() > maxTimestampStatus - minTimestampStatus)
+					return;
+				data_status.firstTimestamp = newStart.getTime();
+				data_status.lastTimestamp = newEnd.getTime();
+			}
+			createGraphStatus();
+		}, timeToRefresh / 2);
+	}
+	canvas.removeEventListener('wheel', useWhell);
+	canvas.addEventListener('wheel', useWhell);
+}
+
+function getDataGraphActivity()
+{
+	const url = '/api/get_user_activity';
+	const data = {user_id: thisUrl.searchParams.get("id")};
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(data)
+	};
+
+	fetch(url, options).then((response) => {
+		if (response.status === 200)
+			return (response.json());
+		else
+			throw new Error('Error');
+	}).then((data_fetch) => {
+		data_activity = data_fetch;
+		minTimestampActivity = data_activity.firstTimestamp;
+		maxTimestampActivity = data_activity.lastTimestamp;
+		createGraphActivity();
+	}).catch((error) => {
+		console.error(error);
+	});
+}
+
+function zoomInGraphActivity()
+{
+	let i = 0;
+
+	if (interval)
+		clearInterval(interval);
+	interval = setInterval(() => {
+		if (data_activity.lastTimestamp - data_activity.firstTimestamp < 1000000)
+		{
+			clearInterval(interval);
+			return;
+		}
+		data_activity.firstTimestamp += (data_activity.lastTimestamp - data_activity.firstTimestamp) / 25;
+		data_activity.lastTimestamp -= (data_activity.lastTimestamp - data_activity.firstTimestamp) / 25;
+		createGraphActivity();
+		i++;
+		if (i === 12)
+			clearInterval(interval);
+	}, timeToRefresh);
+
+}
+
+function zoomOutGraphActivity()
+{
+	let i = 0;
+
+	if (interval)
+		clearInterval(interval);
+	interval = setInterval(() => {
+		if (data_activity.lastTimestamp - data_activity.firstTimestamp < maxTimestampStatus - minTimestampStatus)
+		{
+			data_activity.firstTimestamp -= (data_activity.lastTimestamp - data_activity.firstTimestamp) / 25;
+			data_activity.lastTimestamp += (data_activity.lastTimestamp - data_activity.firstTimestamp) / 25;
+			createGraphActivity();
+		}
+		i++;
+		if (i === 12)
+			clearInterval(interval);
+	}, timeToRefresh);
+}
+
+function  moveLeftGraphActivity()
+{
+	let	i = 0;
+
+	if (interval)
+		clearInterval(interval);
+	interval = setInterval(() => {
+		const time = data_activity.lastTimestamp - data_activity.firstTimestamp;
+		data_activity.firstTimestamp -= (time / 200);
+		data_activity.lastTimestamp -= (time / 200);
+		createGraphActivity();
+		i++;
+		if (i === 25)
+			clearInterval(interval);
+	});
+}
+
+function moveRightGraphActivity()
+{
+	let	i = 0;
+
+	if (interval)
+		clearInterval(interval);
+	interval = setInterval(() => {
+		const time = data_activity.lastTimestamp - data_activity.firstTimestamp;
+		data_activity.firstTimestamp += (time / 200);
+		data_activity.lastTimestamp += (time / 200);
+		createGraphActivity();
+		i++;
+		if (i === 25)
+			clearInterval(interval);
+	});
+}
+
+
+function createGraphActivity()
+{
+	const	canvas		= document.getElementById('graph-activity');
+	const	ctx			= canvas.getContext('2d');
+	const	bounds		= canvas.getBoundingClientRect();
+	const	width		= bounds.width;
+	const	height		= bounds.height;
+	const	start		= new Date(data_activity.firstTimestamp);
+	const	end			= new Date(data_activity.lastTimestamp);
+	const	dataGraph	= []
+
+	canvas.width = width;
+	canvas.height = height;
+	ctx.clearRect(0, 0, width, height);
+	ctx.fillStyle = 'black';
+	ctx.fillRect(75, 0, 1, height - 40);
+	ctx.fillRect(75, height - 40, width - 75, 1);
+	ctx.font = '16px Arial';
+	ctx.fillText('Activity', 12, 50);
+
+	for (let i = 0; i < 5; i++)
+	{
+		const date = new Date(start.getTime() + i * ((end - start) / 5));
+		const text = date.toLocaleDateString();
+		const textTime = date.toLocaleTimeString();
+		const textWidth = ctx.measureText(text).width;
+		const textTimeWidth = ctx.measureText(textTime).width;
+		ctx.fillStyle = 'black';
+		ctx.fillText(text, 75 + i * ((width - 75) / 5) - textWidth / 2, height - 20);
+		ctx.fillText(textTime, 75 + i * ((width - 75) / 5) - textTimeWidth / 2, height - 5);
+		ctx.fillStyle = 'grey';
+		if (i > 0)
+			ctx.fillRect(75 + i * ((width - 75) / 5), 0, 1, height - 40);
+	}
+	for (let i = 0; i < data_activity.activity.length; i++)
+	{
+		const	act = data_activity.activity[i];
+
+		let		x = 75 + ((act.start - start) / (end - start)) * (width - 75);
+		let		x2 = 75 + ((act.end - start) / (end - start)) * (width - 75);
+		if ((x < 75 && x2 < 75) || (x > width && x2 > width))
+			continue;
+		if (x < 75)
+			x = 75;
+		if (x2 > width)
+			x2 = width;
+		ctx.fillStyle = '#3BA55C';
+		const y = 26;
+		ctx.fillRect(x, y, x2 - x, 20);
+		dataGraph.push({x: x, y: y, width: x2 - x, height: 20, activity: act.name, start: act.start, end: act.end});
+	}
+
+	function resizeGraphActivity()
+	{
+		if (timeout)
+			clearTimeout(timeout);
+		timeout = setTimeout(() => {
+			createGraphActivity();
+		}, timeToRefresh);
+	}
+	window.removeEventListener('resize', resizeGraphActivity);
+	window.addEventListener('resize', resizeGraphActivity);
+
+	function showInfo(e)
+	{
+		if (timeout3)
+			clearTimeout(timeout3);
+		timeout3 = setTimeout(() => {
+			const	divInfo = document.getElementById('graph-activity-info');
+			const	mouseX = e.clientX - bounds.left;
+			const	mouseY = e.clientY - bounds.top;
+			let		found = false;
+
+			if (mouseY > 26 && mouseY < 46)
+			{
+				for (let i = 0; i < dataGraph.length; i++)
+				{
+					if (mouseX > dataGraph[i].x && mouseX < dataGraph[i].x + dataGraph[i].width)
+					{
+						divInfo.style.top = '15px';
+						divInfo.style.left = mouseX - 77 + 'px';
+						divInfo.children[0].textContent = dataGraph[i].activity;
+						divInfo.children[1].style.fontSize = '12px';
+						divInfo.children[1].textContent = new Date(dataGraph[i].start).toLocaleString() + ' - ' + new Date(dataGraph[i].end).toLocaleString();
+						ctx.fillStyle = 'black';
+						found = true;
+						break;
+					};
+				}
+			}
+			if (!found)
+				divInfo.style.display = 'none';
 			else
 				divInfo.style.display = 'block';
 		}, 1);
@@ -307,8 +546,8 @@ function createGraphStatus()
 				const	newEnd = new Date(newStart.getTime() + newTime);
 				if (newEnd.getTime() - newStart.getTime() < 1000000)
 					return;
-				g_data.firstTimestamp = newStart.getTime();
-				g_data.lastTimestamp = newEnd.getTime();
+				data_activity.firstTimestamp = newStart.getTime();
+				data_activity.lastTimestamp = newEnd.getTime();
 			}
 			else
 			{
@@ -320,15 +559,26 @@ function createGraphStatus()
 				const	newEnd = new Date(newStart.getTime() + newTime);
 				if (newEnd.getTime() - newStart.getTime() > maxTimestampStatus - minTimestampStatus)
 					return;
-				g_data.firstTimestamp = newStart.getTime();
-				g_data.lastTimestamp = newEnd.getTime();
+				data_activity.firstTimestamp = newStart.getTime();
+				data_activity.lastTimestamp = newEnd.getTime();
 			}
-			createGraphStatus();
+			createGraphActivity();
 		}, timeToRefresh / 2);
 	}
 	canvas.removeEventListener('wheel', useWhell);
 	canvas.addEventListener('wheel', useWhell);
 }
+
+
+
+
+
+
+
+
+
+
+
 
 function getCustomActivity()
 {
@@ -371,8 +621,6 @@ function showCustomActivity(data)
 	}
 }
 
-
-
 function getDataAllPfp()
 {
 	const url = '/api/get_user_all_pfp';
@@ -400,7 +648,7 @@ function showAllPfp(data)
 {
 	const	mozaic = document.getElementById('mozaic-pfp');
 
-	for (let i = data.length - 1; i > 0; i--)
+	for (let i = data.length - 1; i >= 0; i--)
 	{
 		const	div		= document.createElement('div');
 		const	img		= document.createElement('img');

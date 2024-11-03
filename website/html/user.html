@@ -26,13 +26,25 @@
 		<canvas id="presence-graph"></canvas>
 		<div id="graph-status-info">
 			<p>Desktop</p>
-			<p>Date: 2021-09-12</p>
+			<p>Date: 0-0-0</p>
 			<p>Status: online</p>
 		</div>
 	</div>
-	<div class="tile">
-		<h1>Activity</h1>
-		<div id="graph-activity"></div>
+	<div class="tile" style="position: relative;">
+		<div class="top-content-tile">
+			<h1>Activity</h1>
+			<div class="button-container">
+				<button onclick="zoomOutGraphActivity()">-</button>
+				<button onclick="zoomInGraphActivity()">+</button>
+				<button onclick="moveLeftGraphActivity()"><</button>
+				<button onclick="moveRightGraphActivity()">></button>
+			</div>
+		</div>
+		<canvas id="graph-activity"></canvas>
+		<div id="graph-activity-info">
+			<p>Desktop</p>
+			<p>Date: 0-0-0</p>
+		</div>
 	</div>
 	<div class="double-tile">
 		<div class="tile">

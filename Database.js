@@ -209,7 +209,7 @@ class Database
 		let		thisClass = this;
 
 		this.getUserLastCustomActivity(account).then((lastCustomActivity) => {
-			if (lastCustomActivity !== null && lastCustomActivity.text === text) 
+			if (lastCustomActivity !== undefined && lastCustomActivity !== null && lastCustomActivity.text === text) 
 			{
 				this.db.run('UPDATE custom_status SET end = ? WHERE account = ? AND text = ?', [end, account, text], (err) => {
 					if (err)

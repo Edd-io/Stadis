@@ -103,15 +103,26 @@ class Api
 		
 		const user_id = req.body.user_id;
 		database.getUserActivity(user_id).then((activity) => {
-			const	data = [];
+			const	data = {activity: []};
 			if (!activity)
 			{
 				res.send({error: 'User not found'});
 				return;
 			}
 			activity.forEach((row) => {
-				data.push({name: row.activity, start: row.start, end: row.end});
+				data.activity.push({name: row.activity, start: row.start, end: row.end});
 			});
+			data.activity.sort((a, b) => a.start - b.start);
+			if (data.activity.length === 0)
+			{
+				data.firstTimestamp = 0;
+				data.lastTimestamp = Date.now();
+			}
+			else
+			{
+				data.firstTimestamp = data.activity[0].start;
+				data.lastTimestamp = data.activity[data.activity.length - 1].end;
+			}
 			res.send(data);
 		});
 	}
