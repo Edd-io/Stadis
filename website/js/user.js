@@ -1,11 +1,14 @@
 const	timeToRefresh = 16;
 let		g_data = null;
+let		minTimestampStatus = null;
+let		maxTimestampStatus = null;
 
 document.addEventListener('DOMContentLoaded', () => {
 	console.log("User page loaded");
 	getDataGraphStatus();
 	getDataAllPfp();
 	getCustomActivity();
+	getUserListenMusic();
 });
 
 function getDataGraphStatus()
@@ -28,6 +31,8 @@ function getDataGraphStatus()
 			throw new Error('Error');
 	}).then((data_fetch) => {
 		g_data = data_fetch;
+		minTimestampStatus = g_data.firstTimestamp;
+		maxTimestampStatus = g_data.lastTimestamp;
 		createGraphStatus();
 	}).catch((error) => {
 		console.error(error);
@@ -46,6 +51,11 @@ function zoomInGraphStatus()
 	if (interval)
 		clearInterval(interval);
 	interval = setInterval(() => {
+		if (g_data.lastTimestamp - g_data.firstTimestamp < 1000000)
+		{
+			clearInterval(interval);
+			return;
+		}
 		g_data.firstTimestamp += (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
 		g_data.lastTimestamp -= (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
 		createGraphStatus();
@@ -63,9 +73,12 @@ function zoomOutGraphStatus()
 	if (interval)
 		clearInterval(interval);
 	interval = setInterval(() => {
-		g_data.firstTimestamp -= (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
-		g_data.lastTimestamp += (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
-		createGraphStatus();
+		if (g_data.lastTimestamp - g_data.firstTimestamp < maxTimestampStatus - minTimestampStatus)
+		{
+			g_data.firstTimestamp -= (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
+			g_data.lastTimestamp += (g_data.lastTimestamp - g_data.firstTimestamp) / 25;
+			createGraphStatus();
+		}
 		i++;
 		if (i === 12)
 			clearInterval(interval);
@@ -187,7 +200,7 @@ function createGraphStatus()
 	window.removeEventListener('resize', resizeGraphStatus);
 	window.addEventListener('resize', resizeGraphStatus);
 
-	function showInfo (e)
+	function showInfo(e)
 	{
 		if (timeout3)
 			clearTimeout(timeout3);
@@ -278,7 +291,7 @@ function createGraphStatus()
 	canvas.addEventListener('mousemove', showInfo);
 
 
-	function useWhell (e)
+	function useWhell(e)
 	{
 		e.preventDefault();
 		if (timeout2)
@@ -292,6 +305,8 @@ function createGraphStatus()
 				const	newTime = time * 0.9;
 				const	newStart = new Date(start.getTime() + time * percentage - newTime * percentage);
 				const	newEnd = new Date(newStart.getTime() + newTime);
+				if (newEnd.getTime() - newStart.getTime() < 1000000)
+					return;
 				g_data.firstTimestamp = newStart.getTime();
 				g_data.lastTimestamp = newEnd.getTime();
 			}
@@ -303,6 +318,8 @@ function createGraphStatus()
 				const	newTime = time / 0.9;
 				const	newStart = new Date(start.getTime() + time * percentage - newTime * percentage);
 				const	newEnd = new Date(newStart.getTime() + newTime);
+				if (newEnd.getTime() - newStart.getTime() > maxTimestampStatus - minTimestampStatus)
+					return;
 				g_data.firstTimestamp = newStart.getTime();
 				g_data.lastTimestamp = newEnd.getTime();
 			}
@@ -383,7 +400,7 @@ function showAllPfp(data)
 {
 	const	mozaic = document.getElementById('mozaic-pfp');
 
-	for (let i = 0; i < data.length; i++)
+	for (let i = data.length - 1; i > 0; i--)
 	{
 		const	div		= document.createElement('div');
 		const	img		= document.createElement('img');
@@ -392,8 +409,8 @@ function showAllPfp(data)
 		img.src = data[i].url;
 		img.alt = 'pfp';
 		img.className = 'pfp';
-		text.innerText = new Date(data[i].timestamp).toLocaleString().replace(',', ' ');
-		text.setAttribute('class', 'text-image-pfp'); 
+		text.innerHTML = new Date(data[i].timestamp).toLocaleString().replace(',', ' ') + '<button class="button-pfp" onclick="window.open(\'' + data[i].url + '\', \'_blank\')">Open</button>';
+		text.setAttribute('class', 'text-image-pfp');
 		img.style.width = '100%';
 		div.style.position = 'relative';
 		div.style.width = '100%';
@@ -407,5 +424,45 @@ function showAllPfp(data)
 		div.addEventListener('mouseout', () => {
 			text.style.display = 'none';
 		});
+	}
+}
+
+function getUserListenMusic()
+{
+	const url = '/api/get_user_listen_music';
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({user_id: thisUrl.searchParams.get("id")})
+	};
+
+	fetch(url, options).then((response) => {
+		if (response.status === 200)
+			return (response.json());
+		else
+			throw new Error('Error');
+	}).then((data) => {
+		showListenMusic(data);
+	}).catch((error) => {
+		console.error(error);
+	});
+}
+
+function showListenMusic(data)
+{
+	const	scrollDiv = document.getElementById('listen-music-scroll');
+
+	for (let i = 0; i < data.length; i++)
+	{
+		const	div = document.createElement('div');
+
+		div.setAttribute('class', 'line');
+		div.innerHTML = `
+			<p>${data[i].name} by ${data[i].artist}</p>
+			<p class="date">At <span>${new Date(data[i].at).toLocaleString()}</span></p>
+		`;
+		scrollDiv.appendChild(div);
 	}
 }

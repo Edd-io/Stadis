@@ -138,6 +138,29 @@ class Api
 			res.send(data);
 		});
 	}
+
+	static getUserListenMusic(req, res, database)
+	{
+		if (!req.body.user_id)
+		{
+			res.send({error: 'Missing user_id'});
+			return;
+		}
+		
+		const user_id = req.body.user_id;
+		database.getUserListenMusic(user_id).then((music) => {
+			const	data = [];
+			if (!music)
+			{
+				res.send({error: 'User not found'});
+				return;
+			}
+			music.forEach((row) => {
+				data.push({name: row.name, artist: row.artist, at: row.timestamp});
+			});
+			res.send(data);
+		});
+	}
 }
 
 exports.Api = Api;

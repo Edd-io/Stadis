@@ -90,7 +90,7 @@
 
 .mozaic-pfp {
 	width: 100%;
-	height: 200px;
+	height: 400px;
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
 	grid-gap: 5px;
@@ -137,23 +137,22 @@
 	background-color: var(--default-color);
 }
 
-#custom-activity-scroll .line {
+#custom-activity-scroll .line, #listen-music-scroll .line {
 	padding: 5px;
 }
 
-#custom-activity-scroll .line p {
+#custom-activity-scroll .line p, #listen-music-scroll .line p {
 	word-break: break-all;
 }
 
-#custom-activity-scroll .date
-{
+#custom-activity-scroll .date, #listen-music-scroll .date {
 	position: relative;
 	font-weight: bold;
 	font-size: 12px;
 	border-top: 1px solid black;
 }
 
-#custom-activity-scroll .date span
+#custom-activity-scroll .date span, #listen-music-scroll .date span
 {
 	font-weight: normal;
 	position: absolute;
@@ -186,6 +185,7 @@
 }
 
 #graph-status-info {
+	display: none;
 	position: absolute;
 	text-align: center;
 	background-color: white;
@@ -203,11 +203,24 @@
 	text-shadow: 1px 1px 1px black;
 	display: none;
 	align-items: center;
+	justify-content: center;
 	text-align: center;
 	background-color: rgba(0, 0, 0, 0.562);
 	backdrop-filter: blur(5px);
 	border-radius: 10px;
 	padding: 5px;
+	flex-direction: column;
+}
+
+.text-image-pfp .button-pfp {
+	width: 80px;
+	height: 30px;
+	border-radius: 10px;
+	background-color: var(--default-color);
+	margin-top: 10px;
+	border: none;
+	font-size: 16px;
+	cursor: pointer;
 }
 
 @media screen and (max-aspect-ratio: 1/1) {

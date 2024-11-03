@@ -359,6 +359,25 @@ class Database
 		});
 		return (promise);
 	}
+
+	getUserListenMusic(user_id)
+	{
+		let	promise	= null;
+		let limit	= 50;
+
+		promise = new Promise((resolve) => {
+			this.db.all('SELECT * FROM listen_music WHERE account = ? ORDER BY timestamp DESC LIMIT ?', [user_id, limit], (err, rows) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(rows);
+			});
+		});
+		return (promise);
+	}
 }
 
 module.exports.Database = Database;
