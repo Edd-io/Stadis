@@ -1,53 +1,45 @@
 <div class="left-part">
 	<div class="tile tile-pfp">
-		<img id="pfp-img-tile" src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
+		<img id="pfp-img-tile" src="{{left-pfp}}">
 	</div>
 	<div class="tile info">
-		<p>Username<span>Hero</span></p>
-		<p>Nickname<span>Hero</span></p>
-		<p>Status<span>Online</span></p>
-		<p>Discriminator<span>He/Her</span></p>
-		<p>ID<span>1437924687624</span></p>
-		<p>Create at<span>12/12/2012 14:42</span></p>
-		<p>Nitro<span>Boost</span></p>
+		<p>Nickname<span>{{nickname-info}}</span></p>
+		<p>Username<span>{{username-info}}</span></p>
+		<p>Status<span>{{status-info}}</span></p>
+		<p>Discriminator<span>{{discriminator-info}}</span></p>
+		<p>ID<span>{{id-info}}</span></p>
+		<p>Create at<span>{{created-info}}</span></p>
+		<p>Nitro<span>{{nitro-info}}</span></p>
 	</div>
 </div>
 <div class="right-part">
-	<div class="tile">
-		<h1>Status</h1>
-		<div id="presence-graph"></div>
+	<div class="tile" style="position: relative;">
+		<div class="top-content-tile">
+			<h1>Status</h1>
+			<div class="button-container">
+				<button onclick="zoomOutGraphStatus()">-</button>
+				<button onclick="zoomInGraphStatus()">+</button>
+				<button onclick="moveLeftGraphStatus()"><</button>
+				<button onclick="moveRightGraphStatus()">></button>
+			</div>
+		</div>
+		<canvas id="presence-graph"></canvas>
+		<div id="graph-status-info">
+			<p>Desktop</p>
+			<p>Date: 2021-09-12</p>
+			<p>Status: online</p>
+		</div>
 	</div>
 	<div class="tile">
 		<h1>Activity</h1>
 		<div id="graph-activity"></div>
 	</div>
 	<div class="double-tile">
-		<div class="tile" style="margin-right: 5px;">
+		<div class="tile">
 			<h1>Custom activity</h1>
-			<div class="scrool-tile">
-				<p>Bonsoir1</p>
-				<p>Bonsoir2</p>
-				<p>Bonsoir3532</p>
-				<p>Bonsoir533</p>
-				<p>Bonsoir5323</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir6543</p>
-				<p>Bonsoir7653</p>
-			</div>
+			<div class="scrool-tile" id="custom-activity-scroll"></div>
 		</div>
-		<div class="tile" style="margin-left: 5px;">
+		<div class="tile">
 			<h1>Music</h1>
 			<div class="scrool-tile">
 				<p>Renaud1</p>
@@ -70,20 +62,7 @@
 	</div>
 	<div class="tile">
 		<h1>Profile pictures</h1>
-		<div class="mozaic-pfp">
-			<img src="https://zoogdiervereniging.nl/sites/default/files/styles/43_md/public/zoogdiersoort/20111114_Das_Dierenrijk_MaaikePlomp.JPG?h=5f62bdfc&itok=axGB0H5b">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
-			<img src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png">
+		<div class="mozaic-pfp" id="mozaic-pfp">
 		</div>
 	</div>
 	<div class="tile" style="height: 200px">

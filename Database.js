@@ -1,9 +1,14 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
+
 class Database
 {
-	constructor()
+	friendList	= {};
+	token		= null;
+
+	constructor(token)
 	{
+		this.token = token;
 		fs.mkdir('data/pfp', { recursive: true }, (err) => {
 			if (err)
 				console.error(err);
@@ -86,9 +91,32 @@ class Database
 		`);
 	}
 
+	async requester(id)
+	{
+		const	url = 'https://discord.com/api/v9/users/' + id + '/profile??with_mutual_guilds=true&with_mutual_friends=true&with_mutual_friends_count=false';
+		const fetch = (await import('node-fetch')).default;
+
+		return (new Promise((resolve, reject) => {
+			fetch(url, {
+				method: 'GET',
+				headers: {
+					'Authorization': this.token,
+				}
+			}).then((response) => {
+				if (response.status === 200)
+					resolve(response.json());
+				else
+					reject(response.status);
+			}).catch((err) => {
+				reject(err);
+			});
+		}));
+	}
+
 
 	insertUser(username, id)
 	{
+		let	thisClass = this;
 		let promise = null;
 
 		promise = new Promise((resolve) => {
@@ -101,7 +129,6 @@ class Database
 				}
 				if (row)
 				{
-					console.log('User already exists');
 					resolve(false);
 					return ;
 				}
@@ -115,7 +142,7 @@ class Database
 						}
 						else
 						{
-							console.log('User added');
+							console.log(`[${id}] ${username} added`);
 							resolve(true);
 						}
 					});
@@ -127,16 +154,20 @@ class Database
 
 	insertPresence(account, device, status)
 	{
+		let	thisClass = this;
+
 		this.db.run('INSERT INTO presence (account, device, status) VALUES (?, ?, ?)', [account, device, status], (err) => {
 			if (err)
 				console.error(err.message);
 			else
-				console.log('Presence added');
+				console.log(`[${thisClass.friendList[account].username}] ${status} on ${device}`);
 		});
 	}
 
 	insertPfp(account, avatar)
 	{
+		let	thisClass = this;
+
 		async function downloadImage(url, filepath)
 		{
 			const fetch = (await import('node-fetch')).default;
@@ -164,7 +195,7 @@ class Database
 						if (err)
 							console.error(err.message);
 						else
-							console.log('Pfp added');
+							console.log(`[${thisClass.friendList[account].username}] Pfp added`);
 					});
 				}).catch((err) => {
 					console.error(err);
@@ -175,43 +206,49 @@ class Database
 
 	insertCustomActivity(account, text, start, end)
 	{
-		const	lastCustomActivity = this.getUserLastCustomActivity(account);
+		let		thisClass = this;
 
-		if (lastCustomActivity !== null && lastCustomActivity.text === text) 
-		{
-			this.db.run('UPDATE custom_status SET end = ? WHERE account = ? AND text = ?', [end, account, text], (err) => {
+		this.getUserLastCustomActivity(account).then((lastCustomActivity) => {
+			if (lastCustomActivity !== null && lastCustomActivity.text === text) 
+			{
+				this.db.run('UPDATE custom_status SET end = ? WHERE account = ? AND text = ?', [end, account, text], (err) => {
+					if (err)
+						console.error(err.message);
+					else
+						console.log(`[${thisClass.friendList[account].username}] Custom activity reloaded`);
+				});
+				return ;
+			}
+			this.db.run('INSERT INTO custom_status (account, text, start, end) VALUES (?, ?, ?, ?)', [account, text, start, end], (err) => {
 				if (err)
 					console.error(err.message);
 				else
-					console.log('Custom activity updated');
+					console.log(`[${thisClass.friendList[account].username}] Custom activity added`);
 			});
-			return ;
-		}
-		this.db.run('INSERT INTO custom_status (account, text, start, end) VALUES (?, ?, ?, ?)', [account, text, start, end], (err) => {
-			if (err)
-				console.error(err.message);
-			else
-				console.log('Custom activity added');
 		});
 	}
 
 	insertActivity(account, activity, start, end)
 	{
+		let	thisClass = this;
+
 		this.db.run('INSERT INTO activity (account, activity, start, end) VALUES (?, ?, ?, ?)', [account, activity, start, end], (err) => {
 			if (err)
 				console.error(err.message);
 			else
-				console.log('Activity added');
+				console.log(`[${thisClass.friendList[account].username}] Activity '${activity}' added`);
 		});
 	}
 
 	insertMusic(account, name, artist)
 	{
+		let	thisClass = this;
+
 		this.db.run('INSERT INTO listen_music (account, name, artist) VALUES (?, ?, ?)', [account, name, artist], (err) => {
 			if (err)
 				console.error(err.message);
 			else
-				console.log('music added');
+				console.log(`[${thisClass.friendList[account].username}] Listen to ${name} by ${artist}`);
 		});
 	}
 

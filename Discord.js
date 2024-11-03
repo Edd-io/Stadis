@@ -1,19 +1,20 @@
 const WebSocket = require('ws');
-const token = require('./secret.json').token;
 const gatewayUrl = 'wss://gateway.discord.gg/?v=10&encoding=json';
 
 class Discord
 {
 	websocket = null;
+	token = null;
 	bufferInfo = [];
 	bufferPresence = {};
 	bufferCustomActivity = [];
 	bufferMusic = [];
 	db = null;
 
-	constructor(database)
+	constructor(database, token)
 	{
 		this.db = database;
+		this.token = token;
 		this.connect();
 	}
 
@@ -28,7 +29,7 @@ class Discord
 				op: 2,
 				intents: 131071,
 				d: {
-					token: token,
+					token: thisClass.token,
 					properties: {
 						$os: 'linux',
 						$browser: 'firefox',
@@ -66,6 +67,8 @@ class Discord
 			thisClass.websocket = null;
 			thisClass.bufferInfo = [];
 			thisClass.bufferPresence = {};
+			thisClass.bufferCustomActivity = [];
+			thisClass.bufferMusic = [];
 			console.log('Reconnecting...');
 			thisClass.connect();
 		});
@@ -81,9 +84,33 @@ class Discord
 
 	#readyEvent(message)
 	{
+		setTimeout(() => {
+			this.websocket.send(JSON.stringify({ op: 3, d: { status: 'idle', since: new Date(), activities: [], status: 'afk', afk: true } }));
+		}, 1000);
+		for (let i = 0; i < message.d.presences.length; i++)
+		{
+			const	presence = message.d.presences[i];
+			let		web, mobile, desktop;
+
+			web = presence.client_status.web ? presence.client_status.web : "offline";
+			mobile = presence.client_status.mobile ? presence.client_status.mobile : "offline";
+			desktop = presence.client_status.desktop ? presence.client_status.desktop : "offline";
+			this.db.insertPresence(presence.user.id, "web", web);
+			this.db.insertPresence(presence.user.id, "mobile", mobile);
+			this.db.insertPresence(presence.user.id, "desktop", desktop);
+			this.bufferPresence[presence.user.id] = {web: web, mobile: mobile, desktop: desktop};
+			if (this.bufferPresence[presence.user.id].web === "offline" && this.bufferPresence[presence.user.id].mobile === "offline" && this.bufferPresence[presence.user.id].desktop === "offline")
+			{
+				this.bufferPresence[presence.user.id].isNotReallyOffline = true;
+				console.log(`[${presence.user.username}] is not really offline`);
+			}
+			else
+				this.bufferPresence[presence.user.id].isNotReallyOffline = false;
+		}
 		for (let i = 0; i < message.d.relationships.length; i++)
 		{
 			this.bufferInfo.push({username: message.d.relationships[i].user.username, id: message.d.relationships[i].user.id, pfp: message.d.relationships[i].user.avatar, activities: []});
+			this.db.friendList[message.d.relationships[i].user.id] = {username: message.d.relationships[i].user.username};
 			this.db.insertUser(message.d.relationships[i].user.username, message.d.relationships[i].user.id).then((bool) => {
 				if (!bool)
 				{
@@ -108,7 +135,7 @@ class Discord
 
 	#presenceUpdate(message)
 	{
-		let	index = 0;
+		let	index = -1;
 
 		const pfpChange = () =>
 		{
@@ -131,6 +158,8 @@ class Discord
 					break;
 				}
 			}
+			if (index === -1)
+				return ;
 			if (this.bufferPresence[message.d.user.id])
 			{
 				const	oldStatus				= this.bufferPresence[message.d.user.id];
@@ -172,7 +201,6 @@ class Discord
 
 			const	musicAct = (activity) =>
 			{
-				console.log(`[${this.bufferInfo[index].username}] ${activity.details} by ${activity.state}`);
 				for (let i = 0; i < this.bufferMusic.length; i++)
 				{
 					if (this.bufferMusic[i].id === message.d.user.id)
@@ -181,6 +209,10 @@ class Discord
 							return ;
 						this.bufferMusic[i].name = activity.details;
 						this.bufferMusic[i].artist = activity.state;
+						if (this.bufferMusic[i].name === null || this.bufferMusic[i].name === undefined || this.bufferMusic[i].artist === null || this.bufferMusic[i].artist === undefined)
+							return ;
+						if (this.bufferMusic[i].name === "" || this.bufferMusic[i].artist === "")
+							return ;
 						this.db.insertMusic(this.bufferMusic[i].id, this.bufferMusic[i].name, this.bufferMusic[i].artist);
 						return ;
 					}
@@ -276,6 +308,11 @@ class Discord
 			}
 		}
 		statusChange();
+		if (index === -1)
+		{
+			// console.log("User not found : " + message.d.user.id + " (not in friend list)");
+			return ;
+		}
 		pfpChange();
 		activitiesChange();
 	}

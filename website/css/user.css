@@ -64,7 +64,6 @@
 .right-part #presence-graph {
 	width: 100%;
 	height: 200px;
-	background-color: burlywood;
 }
 
 .right-part #graph-activity {
@@ -74,9 +73,14 @@
 }
 
 .double-tile {
+	width: 100%;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+}
+
+.double-tile .tile {
+	width: calc(49.5% - 60px);
 }
 
 .double-tile h1 {
@@ -94,8 +98,8 @@
 }
 
 .mozaic-pfp img {
-	width: 95%;
-	height: 95%;
+	width: 100%;
+	height: 100%;
 	border-radius: 10px;
 	object-fit: cover;
 	object-position: center;
@@ -129,8 +133,81 @@
 	padding: 5px;
 }
 
-.scrool-tile p:nth-child(odd) {
+.scrool-tile div:nth-child(odd) {
 	background-color: var(--default-color);
+}
+
+#custom-activity-scroll .line {
+	padding: 5px;
+}
+
+#custom-activity-scroll .line p {
+	word-break: break-all;
+}
+
+#custom-activity-scroll .date
+{
+	position: relative;
+	font-weight: bold;
+	font-size: 12px;
+	border-top: 1px solid black;
+}
+
+#custom-activity-scroll .date span
+{
+	font-weight: normal;
+	position: absolute;
+	right: 5px;
+}
+
+
+.top-content-tile {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.top-content-tile .button-container {
+	display: flex;
+	flex-direction: row;
+	width: auto;
+	padding-top: 20px;
+}
+
+.top-content-tile .button-container button {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-color: var(--default-color);
+	margin-left: 10px;
+	border: none;
+	font-size: 25px;
+	cursor: pointer;
+}
+
+#graph-status-info {
+	position: absolute;
+	text-align: center;
+	background-color: white;
+	border-radius: 10px;
+	padding: 5px;
+	width: 200px;
+}
+
+.text-image-pfp {
+	width: calc(100% - 10px);
+	height: calc(100% - 10px);
+	position: absolute;
+	color: white;
+	font-weight: bold;
+	text-shadow: 1px 1px 1px black;
+	display: none;
+	align-items: center;
+	text-align: center;
+	background-color: rgba(0, 0, 0, 0.562);
+	backdrop-filter: blur(5px);
+	border-radius: 10px;
+	padding: 5px;
 }
 
 @media screen and (max-aspect-ratio: 1/1) {

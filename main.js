@@ -1,12 +1,15 @@
+const token = require('./secret.json').token_nexa;
 const Discord = require('./Discord');
 const Database = require('./Database');
 const express = require('express');
 const apiImport = require('./api');
+const changeContentUser = require('./changeContent/user').changeContentUser;
 
 /*
 	Todo (Eddy) :
 		- catch CTRL+C for close the database and the websocket
 		- new table for server (this program) activity
+		- send request to be afk
 */
 
 function configApi(app, database)
@@ -19,7 +22,7 @@ function configApi(app, database)
 	app.post('/api/get_user_custom_activity', (req, res) => {api.getUserCustomActivity(req, res, database)});
 }
 
-function webServer(database)
+function webServer(database, discord)
 {
 	const fs = require('fs');
 	const app = express();
@@ -39,6 +42,12 @@ function webServer(database)
 	});
 
 	app.get('/user', (req, res) => {
+		if (!req.query.id)
+		{
+			res.redirect('/');
+			return;
+		}
+
 		let		index_content = fs.readFileSync('website/index.html', 'utf8');
 		let		content = fs.readFileSync('website/html/user.html', 'utf8');
 		const	page = 'user';
@@ -47,8 +56,14 @@ function webServer(database)
 		copy = copy.replace("{{stylesheet}}", page);
 		copy = copy.replace("{{script}}", page);
 		copy = copy.replace("{{content}}", content);
-		//add all user data
-		res.send(copy);
+		changeContentUser(copy, req.query.id, database, discord).then((html) => {
+			if (html === null)
+			{
+				res.redirect('/');
+				return;
+			}
+			res.send(html);
+		});
 	});
 
 	app.get('/search', (req, res) => {
@@ -106,13 +121,13 @@ function webServer(database)
 
 function main()
 {
-	const	database	= new Database.Database();
+	const	database	= new Database.Database(token);
 	let		discord		= null;
 
-	webServer(database);
-	// setTimeout(() => {
- 	// 	discord = new Discord.Discord(database);
-	// }, 1000);
+	setTimeout(() => {
+		discord = new Discord.Discord(database, token);
+		webServer(database, discord);
+	}, 1000);
 
 }
 
