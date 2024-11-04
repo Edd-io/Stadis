@@ -42,27 +42,18 @@ function changeContentUser(page, id, db, discord)
 	const	userInfo = discord.bufferInfo[discord.bufferInfo.findIndex((element) => element.id === id)];
 
 	return (new Promise((resolve) => {
-		// db.requester(id).then((data) => {
-		// 	const user = data.user;
-		// 	page = page.replace("{{left-pfp}}", '/' + id + '/' + userInfo.pfp + '.png');
-		// 	page = page.replace("{{username-info}}", user.username);
-		// 	page = page.replace("{{nickname-info}}", user.global_name);
-		// 	page = page.replace("{{status-info}}", statusLeftProfile(discord.bufferPresence[id]));
-		// 	page = page.replace("{{created-info}}", new Date(convertIDtoUnix(user.id)).toLocaleDateString());
-		// 	page = page.replace("{{discriminator-info}}", data.user_profile.pronouns);
-		// 	page = page.replace("{{id-info}}", user.id);
-		// 	page = page.replace("{{nitro-info}}", haveNitro(data.premium_since));
-		// 	resolve(page);
-		// })
-		page = page.replace("{{left-pfp}}", '/' + id + '/' + userInfo.pfp + '.png');
-		page = page.replace("{{username-info}}", 'AAAAA');
-		page = page.replace("{{nickname-info}}", 'AAAAA');
-		page = page.replace("{{status-info}}", 'AAAAA');
-		page = page.replace("{{created-info}}", 'AAAAA');
-		page = page.replace("{{discriminator-info}}", 'AAAAA');
-		page = page.replace("{{id-info}}", 'AAAAA');
-		page = page.replace("{{nitro-info}}", 'AAAAA');
-		resolve(page);
+		db.requester(id).then((data) => {
+			const user = data.user;
+			page = page.replace("{{left-pfp}}", '/' + id + '/' + userInfo.pfp + '.png');
+			page = page.replace("{{username-info}}", user.username);
+			page = page.replace("{{nickname-info}}", user.global_name);
+			page = page.replace("{{status-info}}", statusLeftProfile(discord.bufferPresence[id]));
+			page = page.replace("{{created-info}}", new Date(convertIDtoUnix(user.id)).toLocaleDateString());
+			page = page.replace("{{discriminator-info}}", data.user_profile.pronouns);
+			page = page.replace("{{id-info}}", user.id);
+			page = page.replace("{{nitro-info}}", haveNitro(data.premium_since));
+			resolve(page);
+		})
 	}));
 }
 

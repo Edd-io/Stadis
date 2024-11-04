@@ -1,0 +1,25 @@
+<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center;">
+	<div class="data-selector">
+		<select id="data-selector">
+			<option value="activitys">Activity</option>
+			<option value="customs_status">Custom Status</option>
+			<option value="musics">Music</option>
+			<option value="pfps">Profile picture</option>
+			<option value="presences">Status</option>
+			<option value="users">Users</option>
+		</select>
+	</div>
+	<div class="info-container">
+		<p class="info">Number of entries : <span class="info-value" id="nb-elements-entries">0</span></p>
+		<p class="info">Last updated : <span class="info-value" id="last-update-entries">Never</span></p>
+		<div class="info-buttons-page">
+			<button class="info-button" onclick="previousPage()"><</button>
+			<p class="info">Page <span class="info-value" id="nb-actual-page">1</span></p>
+			<button class="info-button" onclick="nextPage()">></button>
+		</div>
+	</div>
+	<div id="top-column-container"></div>
+	<div id="data-container">
+
+	</div>
+</div>

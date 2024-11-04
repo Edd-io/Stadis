@@ -3,7 +3,7 @@
 		<title>Website</title>
 		<link rel="stylesheet" type="text/css" href="/css/style.css">
 		<link rel="stylesheet" type="text/css" href="/css/{{stylesheet}}.css">
-		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+		<script src="/js/main.js"></script>
 		<script src="/js/{{script}}.js"></script>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,11 +11,11 @@
 	</head>
 	<body>
 		<div class="button-container">
-			<button class="button pressed"><img class="pfp-img" src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png"></button>
-			<button class="button"><img src="/ico/search.svg"></button>
-			<button class="button"><img src="/ico/raw.svg"></button>
-			<button class="button"><img src="/ico/settings.svg"></button>
-			<button class="button" id="github-button"><img src="/ico/github.svg"></button>
+			<button id="home-button" class="button pressed"><img class="pfp-img" src="https://cdn.hero.page/pfp/34b7e0f7-f8c9-4baf-9391-aa633be7b6e3-lost-in-the-rain-sorrowful-anime-pfp-2.png"></button>
+			<button id="search-button" class="button"><img src="/ico/search.svg"></button>
+			<button id="raw-button" class="button"><img src="/ico/raw.svg"></button>
+			<button id="settings-button" class="button"><img src="/ico/settings.svg"></button>
+			<button class="button" id="github-button"><img src="/ico/github.svg" onclick="window.open('https:\/\/github.com/Kum1ta/Stadis')"></button>
 		</div>
 		<div class="content-container">
 			{{content}}

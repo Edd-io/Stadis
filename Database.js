@@ -219,6 +219,8 @@ class Database
 				});
 				return ;
 			}
+			if (text === null || text === '' || text === undefined)
+				return ;
 			this.db.run('INSERT INTO custom_status (account, text, start, end) VALUES (?, ?, ?, ?)', [account, text, start, end], (err) => {
 				if (err)
 					console.error(err.message);
@@ -377,6 +379,145 @@ class Database
 			});
 		});
 		return (promise);
+	}
+
+	getListUserByNickname(nickname)
+	{
+		let	promise = null;
+
+		promise = new Promise((resolve) => {
+			this.db.all('SELECT * FROM users WHERE username LIKE ?', ['%' + nickname + '%'], (err, rows) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(rows);
+			});
+		});
+		return (promise);
+	}
+
+	getTableCount(tableName)
+	{
+		let promise = null;
+
+		promise = new Promise((resolve) => {
+			this.db.get(`SELECT COUNT(*) as count FROM ${tableName}`, (err, row) => {
+				if (err)
+				{
+					console.error(err.message);
+					resolve(null);
+				}
+				else
+					resolve(row.count);
+			});
+		});
+		return (promise);
+	}
+
+	getRawData(type, range)
+	{
+		switch (type)
+		{
+			case 'activitys':
+				return (new Promise((resolve) => {
+					this.db.all('SELECT * FROM activity ORDER BY id DESC LIMIT ? OFFSET ?', [range[1] - range[0], range[0]], (err, rows) => {
+						if (err)
+						{
+							console.error(err.message);
+							resolve(null);
+						}
+						else
+						{
+							this.getTableCount('activity').then((count) => {
+								resolve({data: rows, nb: count});
+							});
+						}
+					});
+				}));
+			case 'customs_status':
+				return (new Promise((resolve) => {
+					this.db.all('SELECT * FROM custom_status ORDER BY id DESC LIMIT ? OFFSET ?', [range[1] - range[0], range[0]], (err, rows) => {
+						if (err)
+						{
+							console.error(err.message);
+							resolve(null);
+						}
+						else
+						{
+							this.getTableCount('custom_status').then((count) => {
+								resolve({data: rows, nb: count});
+							});
+						}
+					});
+				}));
+			case 'musics':
+				return (new Promise((resolve) => {
+					this.db.all('SELECT * FROM listen_music ORDER BY id DESC LIMIT ? OFFSET ?', [range[1] - range[0], range[0]], (err, rows) => {
+						if (err)
+						{
+							console.error(err.message);
+							resolve(null);
+						}
+						else
+						this.getTableCount('listen_music').then((count) => {
+							resolve({data: rows, nb: count});
+						});
+					});
+				}));
+			case 'pfps':
+				return (new Promise((resolve) => {
+					this.db.all('SELECT * FROM pfp ORDER BY id DESC LIMIT ? OFFSET ?', [range[1] - range[0], range[0]], (err, rows) => {
+						if (err)
+						{
+							console.error(err.message);
+							resolve(null);
+						}
+						else
+						{
+							this.getTableCount('pfp').then((count) => {
+								resolve({data: rows, nb: count});
+							});
+						}
+					});
+				}));
+			case 'presences':
+				return (new Promise((resolve) => {
+					this.db.all('SELECT * FROM presence ORDER BY id DESC LIMIT ? OFFSET ?', [range[1] - range[0], range[0]], (err, rows) => {
+						if (err)
+						{
+							console.error(err.message);
+							resolve(null);
+						}
+						else
+						{
+							this.getTableCount('presence').then((count) => {
+								resolve({data: rows, nb: count});
+							});
+						}
+					});
+				}));
+			case 'users':
+				return (new Promise((resolve) => {
+					this.db.all('SELECT * FROM users LIMIT ? OFFSET ?', [range[1] - range[0], range[0]], (err, rows) => {
+						if (err)
+						{
+							console.error(err.message);
+							resolve(null);
+						}
+						else
+						{
+							this.getTableCount('users').then((count) => {
+								resolve({data: rows.sort((a, b) => a.username.localeCompare(b.username)), nb: count});
+							});
+						}
+					});
+				}));
+			default:
+				return (new Promise((resolve) => {resolve(null)}));
+		}
 	}
 }
 

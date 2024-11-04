@@ -172,6 +172,57 @@ class Api
 			res.send(data);
 		});
 	}
+
+	static searchUser(req, res, database, discord)
+	{
+		if (req.body.value === undefined)
+		{
+			res.send({error: 'Missing value'});
+			return;
+		}
+		
+		const value = req.body.value;
+		const data = [];
+		discord.bufferInfo.forEach((info) => {
+			if (info.username.toLowerCase().indexOf(value.toLowerCase()) === -1 && info.id.indexOf(value) === -1)
+				return;
+			data.push({id: info.id, username: info.username, avatar: info.pfp});
+		});
+		data.sort((a, b) => a.username.localeCompare(b.username));
+		res.send(data);
+	}
+
+	static getRawData(req, res, database)
+	{
+		const	types = ['activitys', 'customs_status', 'musics', 'pfps', 'presences', 'users'];
+		if (!req.body.type || !req.body.range)
+		{
+			res.send({error: 'Missing type'});
+			return;
+		}
+		
+		const type = req.body.type;
+		const range = req.body.range;
+
+		if (types.indexOf(type) === -1)
+		{
+			res.send({error: 'Invalid type'});
+			return;
+		}
+		if (range.length !== 2 || range[0] > range[1])
+		{
+			res.send({error: 'Invalid range'});
+			return;
+		}
+		database.getRawData(type, range).then((data) => {
+			if (!data)
+			{
+				res.send({error: 'An error occured while fetching the data'});
+				return;
+			}
+			res.send(data);
+		});
+	}
 }
 
 exports.Api = Api;

@@ -439,7 +439,9 @@ function createGraphActivity()
 	const	height		= bounds.height;
 	const	start		= new Date(data_activity.firstTimestamp);
 	const	end			= new Date(data_activity.lastTimestamp);
-	const	dataGraph	= []
+	const	color		= ['#3BA55C', '#ED4245'];
+	const	dataGraph	= [];
+	let		j			= 0;
 
 	canvas.width = width;
 	canvas.height = height;
@@ -470,14 +472,16 @@ function createGraphActivity()
 
 		let		x = 75 + ((act.start - start) / (end - start)) * (width - 75);
 		let		x2 = 75 + ((act.end - start) / (end - start)) * (width - 75);
+		j++;
 		if ((x < 75 && x2 < 75) || (x > width && x2 > width))
 			continue;
 		if (x < 75)
 			x = 75;
 		if (x2 > width)
 			x2 = width;
-		ctx.fillStyle = '#3BA55C';
-		const y = 26;
+		ctx.fillStyle = color[i % 2];
+		console.log(j);
+		const y = 35;
 		ctx.fillRect(x, y, x2 - x, 20);
 		dataGraph.push({x: x, y: y, width: x2 - x, height: 20, activity: act.name, start: act.start, end: act.end});
 	}
@@ -503,7 +507,7 @@ function createGraphActivity()
 			const	mouseY = e.clientY - bounds.top;
 			let		found = false;
 
-			if (mouseY > 26 && mouseY < 46)
+			if (mouseY > 35 && mouseY < 55)
 			{
 				for (let i = 0; i < dataGraph.length; i++)
 				{
@@ -568,17 +572,6 @@ function createGraphActivity()
 	canvas.removeEventListener('wheel', useWhell);
 	canvas.addEventListener('wheel', useWhell);
 }
-
-
-
-
-
-
-
-
-
-
-
 
 function getCustomActivity()
 {

@@ -9,10 +9,9 @@ const changeContentUser = require('./changeContent/user').changeContentUser;
 	Todo (Eddy) :
 		- catch CTRL+C for close the database and the websocket
 		- new table for server (this program) activity
-		- send request to be afk
 */
 
-function configApi(app, database)
+function configApi(app, database, discord)
 {
 	const api = apiImport.Api;
 
@@ -21,11 +20,15 @@ function configApi(app, database)
 	app.post('/api/get_user_activity', (req, res) => {api.getUserActivity(req, res, database)});
 	app.post('/api/get_user_custom_activity', (req, res) => {api.getUserCustomActivity(req, res, database)});
 	app.post('/api/get_user_listen_music', (req, res) => {api.getUserListenMusic(req, res, database)});
+	
+	app.post('/api/search_user', (req, res) => {api.searchUser(req, res, database, discord)});
+	app.post('/api/raw', (req, res) => {api.getRawData(req, res, database)});
 }
 
 function webServer(database, discord)
 {
 	const fs = require('fs');
+	const index_content = fs.readFileSync('website/index.html', 'utf8');
 	const app = express();
 	const port = 3000;
 
@@ -33,7 +36,6 @@ function webServer(database, discord)
 	app.use(express.static('data/pfp'));
 
 	app.get('/', (req, res) => {
-		let		index_content = fs.readFileSync('website/index.html', 'utf8');
 		const	page = 'home';
 		let		copy = index_content;
 
@@ -49,7 +51,6 @@ function webServer(database, discord)
 			return;
 		}
 
-		let		index_content = fs.readFileSync('website/index.html', 'utf8');
 		let		content = fs.readFileSync('website/html/user.html', 'utf8');
 		const	page = 'user';
 		let		copy = index_content;
@@ -68,27 +69,28 @@ function webServer(database, discord)
 	});
 
 	app.get('/search', (req, res) => {
-		let		index_content = fs.readFileSync('website/index.html', 'utf8');
+		let		content = fs.readFileSync('website/html/search.html', 'utf8');
 		const	page = 'search';
 		let		copy = index_content;
 
 		copy = copy.replace("{{stylesheet}}", page);
 		copy = copy.replace("{{script}}", page);
+		copy = copy.replace("{{content}}", content);
 		res.send(copy);
 	});
 
 	app.get('/raw', (req, res) => {
-		let		index_content = fs.readFileSync('website/index.html', 'utf8');
+		let		content = fs.readFileSync('website/html/raw.html', 'utf8');
 		const	page = 'raw';
 		let		copy = index_content;
 
 		copy = copy.replace("{{stylesheet}}", page);
 		copy = copy.replace("{{script}}", page);
+		copy = copy.replace("{{content}}", content);
 		res.send(copy);
 	});
 
 	app.get('/settings', (req, res) => {
-		let		index_content = fs.readFileSync('website/index.html', 'utf8');
 		const	page = 'settings';
 		let		copy = index_content;
 
@@ -113,7 +115,7 @@ function webServer(database, discord)
 		res.send(icon);
 	});
 
-	configApi(app, database);
+	configApi(app, database, discord);
 
 	app.listen(port, () => {
 		console.log(`Example app listening at http://localhost:${port}`);
