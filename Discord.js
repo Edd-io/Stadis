@@ -80,6 +80,26 @@ class Discord
 			this.#readyEvent(message);
 		else if (message.t === 'PRESENCE_UPDATE')
 			this.#presenceUpdate(message);
+		else if (message.t === 'RELATIONSHIP_REMOVE')
+		{
+			for (let i = 0; i < this.bufferInfo.length; i++)
+			{
+				if (this.bufferInfo[i].id === message.d.id)
+				{
+					this.bufferInfo.splice(i, 1);
+					break;
+				}
+			}
+		}
+		else if (message.t === 'RELATIONSHIP_ADD')
+			this.bufferInfo.push({username: message.d.user.username, id: message.d.user.id, pfp: message.d.user.avatar, activities: []});
+		// else
+		// {
+		// 	console.log("---------------------------------------------");
+		// 	console.log("Unknown event : " + message.t);
+		// 	console.log(message);
+		// 	console.log("---------------------------------------------");
+		// }
 	}
 
 	#readyEvent(message)
