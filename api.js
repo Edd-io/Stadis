@@ -223,6 +223,21 @@ class Api
 			res.send(data);
 		});
 	}
+
+	static getSelfInfo(req, res, discord)
+	{
+		res.send({
+			username: discord.selfInfo.username,
+			discriminator: discord.selfInfo.discriminator,
+			id: discord.selfInfo.id,
+			avatar: discord.selfInfo.avatar,
+			bio: discord.selfInfo.bio,
+			premium: discord.selfInfo.premium,
+			premium_type: discord.selfInfo.premium_type,
+			pronouns: discord.selfInfo.pronouns,
+			global_name: discord.selfInfo.global_name,
+		});
+	}
 }
 
 exports.Api = Api;

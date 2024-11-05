@@ -10,6 +10,7 @@ class Discord
 	bufferCustomActivity = [];
 	bufferMusic = [];
 	db = null;
+	selfInfo = null;
 
 	constructor(database, token)
 	{
@@ -93,17 +94,27 @@ class Discord
 		}
 		else if (message.t === 'RELATIONSHIP_ADD')
 			this.bufferInfo.push({username: message.d.user.username, id: message.d.user.id, pfp: message.d.user.avatar, activities: []});
-		// else
-		// {
-		// 	console.log("---------------------------------------------");
-		// 	console.log("Unknown event : " + message.t);
-		// 	console.log(message);
-		// 	console.log("---------------------------------------------");
-		// }
+		else
+		{
+			try {
+				if (!message.d || this.bufferInfo.findIndex((element) => element.id === message.d.user_id) === -1)
+					return ;
+			}
+			catch (e) {
+				console.log("------------------ERROR------------------");
+				console.log(message);
+				console.log(e);
+				return ;
+			}
+			console.log("---------------------------------------------");
+			console.log("Unknown event : " + message.t);
+			console.log("---------------------------------------------");
+		}
 	}
 
 	#readyEvent(message)
 	{
+		this.selfInfo = message.d.user;
 		setTimeout(() => {
 			this.websocket.send(JSON.stringify({ op: 3, d: { status: 'idle', since: new Date(), activities: [], status: 'afk', afk: true } }));
 		}, 1000);
@@ -115,9 +126,9 @@ class Discord
 			web = presence.client_status.web ? presence.client_status.web : "offline";
 			mobile = presence.client_status.mobile ? presence.client_status.mobile : "offline";
 			desktop = presence.client_status.desktop ? presence.client_status.desktop : "offline";
-			this.db.insertPresence(presence.user.id, "web", web);
-			this.db.insertPresence(presence.user.id, "mobile", mobile);
-			this.db.insertPresence(presence.user.id, "desktop", desktop);
+			this.db.insertPresence(presence.user.id, "web", web, true);
+			this.db.insertPresence(presence.user.id, "mobile", mobile, true);
+			this.db.insertPresence(presence.user.id, "desktop", desktop, true);
 			this.bufferPresence[presence.user.id] = {web: web, mobile: mobile, desktop: desktop};
 			if (this.bufferPresence[presence.user.id].web === "offline" && this.bufferPresence[presence.user.id].mobile === "offline" && this.bufferPresence[presence.user.id].desktop === "offline")
 			{
@@ -131,6 +142,13 @@ class Discord
 		{
 			this.bufferInfo.push({username: message.d.relationships[i].user.username, id: message.d.relationships[i].user.id, pfp: message.d.relationships[i].user.avatar, activities: []});
 			this.db.friendList[message.d.relationships[i].user.id] = {username: message.d.relationships[i].user.username};
+			if (this.bufferPresence[message.d.relationships[i].user.id] === undefined)
+			{
+				this.db.insertPresence(message.d.relationships[i].user.id, "web", "offline", true);
+				this.db.insertPresence(message.d.relationships[i].user.id, "mobile", "offline", true);
+				this.db.insertPresence(message.d.relationships[i].user.id, "desktop", "offline", true);
+				this.bufferPresence[message.d.relationships[i].user.id] = {web: "offline", mobile: "offline", desktop: "offline"};
+			}
 			this.db.insertUser(message.d.relationships[i].user.username, message.d.relationships[i].user.id).then((bool) => {
 				if (!bool)
 				{

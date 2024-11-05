@@ -152,16 +152,33 @@ class Database
 		return (promise);
 	}
 
-	insertPresence(account, device, status)
+	insertPresence(account, device, status, isInit = false)
 	{
 		let	thisClass = this;
-
-		this.db.run('INSERT INTO presence (account, device, status) VALUES (?, ?, ?)', [account, device, status], (err) => {
-			if (err)
-				console.error(err.message);
-			else
-				console.log(`[${thisClass.friendList[account].username}] ${status} on ${device}`);
-		});
+		
+		function insert()
+		{
+			thisClass.db.run('INSERT INTO presence (account, device, status) VALUES (?, ?, ?)', [account, device, status], (err) => {
+				if (err)
+					console.error(err.message);
+				else
+					console.log(`[${thisClass.friendList[account].username}] Presence '${status}' added`);
+			});
+		}
+	
+		if (isInit === true)
+		{
+			this.db.get('SELECT * FROM presence WHERE account = ? AND device = ? ORDER BY timestamp DESC LIMIT 1', [account, device], (err, row) => {
+				if (err)
+					console.error(err.message);
+				else if (row && row.status === status)
+					return ;
+				else
+					insert();
+			});
+		}
+		else
+			insert();
 	}
 
 	insertPfp(account, avatar)

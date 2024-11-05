@@ -480,7 +480,6 @@ function createGraphActivity()
 		if (x2 > width)
 			x2 = width;
 		ctx.fillStyle = color[i % 2];
-		console.log(j);
 		const y = 35;
 		ctx.fillRect(x, y, x2 - x, 20);
 		dataGraph.push({x: x, y: y, width: x2 - x, height: 20, activity: act.name, start: act.start, end: act.end});

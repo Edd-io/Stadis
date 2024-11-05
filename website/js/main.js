@@ -1,6 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
+	getData('/api/get_self_info', {}).then((data) => {
+		changePfp('/' + data.id + '/' + data.avatar + '.png');
+	});
 	configHomeButton();
 });
+
+function getData(url, body)
+{
+	const	options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(body)
+	};
+
+	return (new Promise((resolve) => 
+	{
+		fetch(url, options).then((response) => {
+			if (response.status !== 200)
+			{
+				resolve(null);
+				return;
+			}
+			response.json().then((data) => {
+				resolve(data);
+			});
+		});
+	}));
+}
+
+function changePfp(url)
+{
+	const	img = document.getElementById('button-home-pfp-img');
+
+	img.src = url;
+}
 
 function configHomeButton()
 {
