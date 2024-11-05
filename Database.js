@@ -32,8 +32,6 @@ class Database
 		this.db.close((err) => {
 			if (err)
 				console.error(err.message);
-			else
-				console.log('Close the database connection');
 		});
 	}
 

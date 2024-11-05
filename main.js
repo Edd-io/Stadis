@@ -128,14 +128,42 @@ function webServer(database, discord)
 
 function main()
 {
-	const	database	= new Database.Database(token);
+	let		database	= new Database.Database(token);
 	let		discord		= null;
+	let		canStart	= true;
 
 	setTimeout(() => {
+		if (canStart === false)
+			return;
 		discord = new Discord.Discord(database, token);
 		webServer(database, discord);
+
 	}, 1000);
 
+	const quit = () => {
+		canStart = false;
+		console.warn('\rClosing connections...');
+		if (discord)
+		{
+			discord.finish();
+			discord = null;
+			console.log('\rDiscord connection closed');
+		}
+		if (database)
+		{
+			database.close();
+			database = null;
+			console.log('\rDatabase connection closed');
+		}
+		setTimeout(() => {
+			console.log('\rConnections closed and data saved, exiting...');
+			process.exit();
+		}, 1000);
+	}
+
+	process.on('SIGINT', quit);
+	process.on('SIGTERM', quit);
+	process.on('SIGQUIT', quit);
 }
 
 main();

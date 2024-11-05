@@ -11,6 +11,7 @@ class Discord
 	bufferMusic = [];
 	db = null;
 	selfInfo = null;
+	isReallyClosed = false;
 
 	constructor(database, token)
 	{
@@ -70,8 +71,11 @@ class Discord
 			thisClass.bufferPresence = {};
 			thisClass.bufferCustomActivity = [];
 			thisClass.bufferMusic = [];
-			console.log('Reconnecting...');
-			thisClass.connect();
+			if (!thisClass.isReallyClosed)
+			{
+				console.log('Reconnecting...');
+				thisClass.connect();
+			}
 		});
 	}
 
@@ -116,7 +120,8 @@ class Discord
 	{
 		this.selfInfo = message.d.user;
 		setTimeout(() => {
-			this.websocket.send(JSON.stringify({ op: 3, d: { status: 'idle', since: new Date(), activities: [], status: 'afk', afk: true } }));
+			if (this && this.websocket)
+				this.websocket.send(JSON.stringify({ op: 3, d: { status: 'idle', since: new Date(), activities: [], status: 'afk', afk: true } }));
 		}, 1000);
 		for (let i = 0; i < message.d.presences.length; i++)
 		{
@@ -353,6 +358,29 @@ class Discord
 		}
 		pfpChange();
 		activitiesChange();
+	}
+
+	finish()
+	{
+		this.isReallyClosed = true;
+		this.websocket.close();
+		Object.values(this.bufferInfo).forEach((user) => {
+			user.activities.forEach((activity) => {
+				this.db.insertActivity(user.id, activity.name, activity.start, activity.end);
+			});
+		});
+		Object.entries(this.bufferPresence).forEach(([userId, status]) => {
+			if (status.web !== "offline")
+				this.db.insertPresence(userId, "web", "offline");
+			if (status.mobile !== "offline")
+				this.db.insertPresence(userId, "mobile", "offline");
+			if (status.desktop !== "offline")
+				this.db.insertPresence(userId, "desktop", "offline");
+		});
+		Object.values(this.bufferCustomActivity).forEach((activity) => {
+			if (activity.state !== null)
+				this.db.insertCustomActivity(activity.id, activity.state, activity.start, new Date());
+		});
 	}
 }
 
