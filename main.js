@@ -1,15 +1,9 @@
-const token = require('./secret.json').token;
+const token = require('./secret.json').token_nexa;
 const Discord = require('./Discord');
 const Database = require('./Database');
 const express = require('express');
 const apiImport = require('./api');
 const changeContentUser = require('./changeContent/user').changeContentUser;
-
-/*
-	Todo (Eddy) :
-		- catch CTRL+C for close the database and the websocket
-		- new table for server (this program) activity
-*/
 
 function configApi(app, database, discord)
 {

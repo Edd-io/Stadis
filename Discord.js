@@ -18,7 +18,32 @@ class Discord
 	{
 		this.db = database;
 		this.token = token;
-		this.connect();
+		this.isNotValidToken(token).then(() => {
+			this.connect();
+		}).catch(() => {
+			console.log('Your token is not valid, please check it in secret.json');
+			database.close();
+			process.exit(1);
+		});
+	}
+
+	isNotValidToken(token)
+	{
+		return new Promise((resolve, reject) => {
+			fetch('https://discord.com/api/v10/users/@me', {
+				method: 'GET',
+				headers: {
+					'Authorization': this.token,
+				}
+			}).then((response) => {
+				if (response.ok)
+					resolve();
+				else
+					reject();
+			}).catch((err) => {
+				reject();
+			});
+		});
 	}
 
 	connect()
