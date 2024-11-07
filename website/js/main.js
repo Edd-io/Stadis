@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		changePfp('/' + data.id + '/' + data.avatar + '.png');
 	});
 	configHomeButton();
+	updateColors();
 });
 
 function getData(url, body)
@@ -65,4 +66,21 @@ function configHomeButton()
 		settings.style.filter = 'invert(100%)';
 	else if (path === '/raw')
 		raw.style.filter = 'invert(100%)';
+}
+
+function updateColors()
+{
+	const root = document.documentElement;
+	if (localStorage.getItem('switch-dark-mode') === 'true')
+	{
+		root.style.setProperty('--bg-default-color', '#1a1a1a');
+		root.style.setProperty('--default-color', '#2e2e2e');
+		document.body.style.color = '#FFF';
+	}
+	else
+	{
+		root.style.setProperty('--bg-default-color', '#ECECEC');
+		root.style.setProperty('--default-color', '#D9D9D9');
+		document.body.style.color = '#000';
+	}
 }

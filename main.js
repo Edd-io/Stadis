@@ -97,11 +97,13 @@ function webServer(database, discord)
 	});
 
 	app.get('/settings', (req, res) => {
+		let		content = fs.readFileSync('website/html/settings.html', 'utf8');
 		const	page = 'settings';
 		let		copy = index_content;
 
 		copy = copy.replace("{{stylesheet}}", page);
 		copy = copy.replace("{{script}}", page);
+		copy = copy.replace("{{content}}", content);
 		res.send(copy);
 	});
 

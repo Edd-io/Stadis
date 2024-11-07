@@ -12,6 +12,7 @@ class Discord
 	db = null;
 	selfInfo = null;
 	isReallyClosed = false;
+	alreadyInit = false;
 
 	constructor(database, token)
 	{
@@ -44,7 +45,7 @@ class Discord
 						$release_channel: 'stable',
 					},
 					presence: {
-						status: 'afk',
+						status: 'offline',
 					}
 				}
 			};
@@ -67,10 +68,6 @@ class Discord
 
 		this.websocket.on('close', () => {
 			thisClass.websocket = null;
-			thisClass.bufferInfo = [];
-			thisClass.bufferPresence = {};
-			thisClass.bufferCustomActivity = [];
-			thisClass.bufferMusic = [];
 			if (!thisClass.isReallyClosed)
 			{
 				console.log('Reconnecting...');
@@ -118,6 +115,9 @@ class Discord
 
 	#readyEvent(message)
 	{
+		if (this.alreadyInit)
+			return ;
+		this.alreadyInit = true;
 		this.selfInfo = message.d.user;
 		setTimeout(() => {
 			if (this && this.websocket)

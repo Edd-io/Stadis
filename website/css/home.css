@@ -2,7 +2,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: calc(50% - 20px);
+	width: calc(30% - 20px);
 	background-color: var(--bg-default-color);
 	padding: 10px;
 	border-radius: 10px;
@@ -33,19 +33,6 @@
 	flex-direction: column;
 	width: 50%;
 }
-
-/* .box{
-	display: flex;
-	flex-direction: column;
-	background-color: var(--bg-default-color);
-	border-radius: 10px;
-	margin-bottom: 20px;
-	box-shadow: 1px 4px 1px rgba(0, 0, 0, 0.2);
-	margin: 20px;
-	width: 30%;
-	height: calc(100% - 60px);
-} */
-
 
 #pfp-img-box{
 	width: 90%;
