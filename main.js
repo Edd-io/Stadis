@@ -1,4 +1,4 @@
-const token = require('./secret.json').token_nexa;
+const token = require('./secret.json').token;
 const Discord = require('./Discord');
 const Database = require('./Database');
 const express = require('express');
@@ -40,14 +40,16 @@ function webServer(database, discord)
 	app.use(express.static('data/pfp'));
 
 	app.get('/', (req, res) => {
+		let		content = fs.readFileSync('website/html/home.html', 'utf8');
 		const	page = 'home';
 		let		copy = index_content;
 
 		copy = copy.replace("{{stylesheet}}", page);
 		copy = copy.replace("{{script}}", page);
+		copy = copy.replace("{{content}}", content);
 		res.send(copy);
 	});
-
+	
 	app.get('/user', (req, res) => {
 		if (!req.query.id)
 		{
