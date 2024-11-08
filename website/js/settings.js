@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 	switchDarkMode();
-	updateColors();
 });
 
 function switchDarkMode()

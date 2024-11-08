@@ -70,17 +70,30 @@ function configHomeButton()
 
 function updateColors()
 {
+	const icoList = document.getElementsByClassName('button-container')[0].getElementsByClassName('button');
 	const root = document.documentElement;
+
 	if (localStorage.getItem('switch-dark-mode') === 'true')
 	{
 		root.style.setProperty('--bg-default-color', '#1a1a1a');
 		root.style.setProperty('--default-color', '#2e2e2e');
 		document.body.style.color = '#FFF';
+		for (let i = 1; i < icoList.length; i++)
+		{
+			const img = icoList[i].getElementsByTagName('img')[0];
+			img.style.filter = 'invert(100%)';
+		}
 	}
 	else
 	{
 		root.style.setProperty('--bg-default-color', '#ECECEC');
 		root.style.setProperty('--default-color', '#D9D9D9');
 		document.body.style.color = '#000';
+		for (let i = 1; i < icoList.length; i++)
+		{
+			console.log(icoList[i]);
+			const img = icoList[i].getElementsByTagName('img')[0];
+			img.style.filter = null;
+		}
 	}
 }

@@ -34,7 +34,7 @@
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 20px;
-	background-color: #f8f9fa;
+	background-color: var(--bg-default-color);
 	padding: 5px 10px;
 	border-radius: 10px;
 	font-weight: bold;
@@ -77,7 +77,7 @@
 .data-entry, #top-column-container {
 	width: 94%;
 	margin-bottom: 10px;
-	background-color: #f8f9fa;
+	background-color: var(--bg-default-color);
 	padding: 5px 10px;
 	border-radius: 10px;
 	text-align: center;
