@@ -11,8 +11,8 @@
 .center-container{
 	display: flex;
 	flex-direction: column;
-	width: calc(28% - 20px);
-	padding-inline: 10px;
+	width: calc(50% - 20px);
+	padding-inline: 20px;
 	height: 100%;
 }
 
@@ -31,7 +31,8 @@
 .right-container{
 	display: flex;
 	flex-direction: column;
-	width: 50%;
+	width: 30%;
+	margin-right: 20px;
 }
 
 #pfp-img-box{
@@ -63,4 +64,33 @@
 .latest-music {
 	display: flex;
 	flex-direction: column;
+}
+
+.mini-box {
+	width: 95%;
+	height: 30px;
+	padding: 10px;
+	background-color: var(--bg-default-color);
+	border-radius: 10px;
+	margin-left: 20px;
+	justify-content: space-between;
+	align-items: center;
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 20px;
+}
+
+.box{
+	width: calc(100% - 20px);
+	height: calc(60% - 20px);
+	padding: 10px;
+	background-color: var(--bg-default-color);
+	border-radius: 10px;
+	margin-left: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.box h1{
+	font-size: 18px;
 }
