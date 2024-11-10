@@ -238,6 +238,33 @@ class Api
 			global_name: discord.selfInfo.global_name,
 		});
 	}
+
+	static getHome(req, res, database, discord)
+	{
+		const	data = {musics: [], status: []};
+
+		database.getTableCount('users').then((count) => {
+			data.users = count;
+			data.timeStated = discord.timeStart;
+			for (let i = 0; i < discord.lastFiveMusic.length; i++)
+			{
+				const	username	= discord.bufferInfo.find((info) => info.id === discord.lastFiveMusic[i].id).username;
+				const	pfp			= discord.bufferInfo.find((info) => info.id === discord.lastFiveMusic[i].id).pfp;
+	
+				data.musics.push({name: discord.lastFiveMusic[i].name, artist: discord.lastFiveMusic[i].artist, username: username, pfp: pfp});
+			}
+			for (let i = 0; i < discord.lastFiveStatus.length; i++)
+			{
+				const	username	= discord.bufferInfo.find((info) => info.id === discord.lastFiveStatus[i].id).username;
+				const	pfp			= discord.bufferInfo.find((info) => info.id === discord.lastFiveStatus[i].id).pfp;
+	
+				data.status.push({id :discord.lastFiveStatus[i].id, data: discord.lastFiveStatus[i].data, username: username, pfp: pfp});
+			}
+			data.musics.reverse();
+			data.status.reverse();
+			res.send(data);
+		});
+	};
 }
 
 exports.Api = Api;

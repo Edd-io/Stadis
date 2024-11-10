@@ -13,7 +13,7 @@ function statusLeftProfile(status)
 
 function haveNitro(premium_since)
 {
-	if (premium_since === null)
+	if (premium_since === null || premium_since === 0)
 		return ("No nitro");
 	else if (premium_since === 1)
 		return ("Basic");

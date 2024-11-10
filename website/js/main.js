@@ -91,7 +91,6 @@ function updateColors()
 		document.body.style.color = '#000';
 		for (let i = 1; i < icoList.length; i++)
 		{
-			console.log(icoList[i]);
 			const img = icoList[i].getElementsByTagName('img')[0];
 			img.style.filter = null;
 		}

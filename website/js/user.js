@@ -133,11 +133,13 @@ function createGraphStatus()
 	const	color		= {online: '#3BA55C', dnd: '#ED4245', idle: '#FAA61A', offline: '#747F8D'};
 	const	arr			= [data_status.desktop, data_status.mobile, data_status.web];
 	const	dataGraph	= {desktop: [], mobile: [], web: []};
+	const	darkMode	= localStorage.getItem('switch-dark-mode');
 
 	canvas.width = width;
 	canvas.height = height;
 	ctx.clearRect(0, 0, width, height);
-	ctx.fillStyle = 'black';
+	console.log(darkMode);
+	ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 	ctx.fillRect(75, 0, 1, height - 40);
 	ctx.fillRect(75, height - 40, width - 75, 1);
 	ctx.font = '16px Arial';
@@ -152,7 +154,7 @@ function createGraphStatus()
 		const textTime = date.toLocaleTimeString();
 		const textWidth = ctx.measureText(text).width;
 		const textTimeWidth = ctx.measureText(textTime).width;
-		ctx.fillStyle = 'black';
+		ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 		ctx.fillText(text, 75 + i * ((width - 75) / 5) - textWidth / 2, height - 20);
 		ctx.fillText(textTime, 75 + i * ((width - 75) / 5) - textTimeWidth / 2, height - 5);
 		ctx.fillStyle = 'grey';
@@ -228,7 +230,7 @@ function createGraphStatus()
 						divInfo.children[2].style.fontSize = '12px';
 						divInfo.children[2].textContent = new Date(dataGraph.desktop[i].timestamp).toLocaleString() + ' - ' + new Date(dataGraph.desktop[i + 1] ? dataGraph.desktop[i + 1].timestamp : new Date().getTime()).toLocaleString();
 						createGraphStatus();
-						ctx.fillStyle = 'black';
+						ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 						found = true;
 						break;
 					};
@@ -253,7 +255,7 @@ function createGraphStatus()
 							end = new Date();
 						divInfo.children[2].textContent = new Date(dataGraph.mobile[i].timestamp).toLocaleString() + ' - ' + end.toLocaleString();
 						createGraphStatus();
-						ctx.fillStyle = 'black';
+						ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 						found = true;
 						break;
 					}
@@ -273,7 +275,7 @@ function createGraphStatus()
 						divInfo.children[1].textContent = dataGraph.web[i].status;
 						divInfo.children[2].style.fontSize = '12px';
 						divInfo.children[2].textContent = new Date(dataGraph.web[i].timestamp).toLocaleString() + ' - ' + new Date(dataGraph.web[i + 1] ? dataGraph.web[i + 1].timestamp : new Date().getTime()).toLocaleString();
-						ctx.fillStyle = 'black';
+						ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 						found = true;
 						break;
 					}
@@ -442,11 +444,12 @@ function createGraphActivity()
 	const	color		= ['#3BA55C', '#ED4245'];
 	const	dataGraph	= [];
 	let		j			= 0;
+	const	darkMode	= localStorage.getItem('switch-dark-mode');
 
 	canvas.width = width;
 	canvas.height = height;
 	ctx.clearRect(0, 0, width, height);
-	ctx.fillStyle = 'black';
+	ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 	ctx.fillRect(75, 0, 1, height - 40);
 	ctx.fillRect(75, height - 40, width - 75, 1);
 	ctx.font = '16px Arial';
@@ -459,7 +462,7 @@ function createGraphActivity()
 		const textTime = date.toLocaleTimeString();
 		const textWidth = ctx.measureText(text).width;
 		const textTimeWidth = ctx.measureText(textTime).width;
-		ctx.fillStyle = 'black';
+		ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 		ctx.fillText(text, 75 + i * ((width - 75) / 5) - textWidth / 2, height - 20);
 		ctx.fillText(textTime, 75 + i * ((width - 75) / 5) - textTimeWidth / 2, height - 5);
 		ctx.fillStyle = 'grey';
@@ -517,7 +520,7 @@ function createGraphActivity()
 						divInfo.children[0].textContent = dataGraph[i].activity;
 						divInfo.children[1].style.fontSize = '12px';
 						divInfo.children[1].textContent = new Date(dataGraph[i].start).toLocaleString() + ' - ' + new Date(dataGraph[i].end).toLocaleString();
-						ctx.fillStyle = 'black';
+						ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 						found = true;
 						break;
 					};

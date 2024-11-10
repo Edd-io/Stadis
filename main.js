@@ -19,6 +19,7 @@ function configApi(app, database, discord)
 	app.post('/api/raw', (req, res) => {api.getRawData(req, res, database)});
 	
 	app.post('/api/get_self_info', (req, res) => {api.getSelfInfo(req, res, discord)});
+	app.post('/api/home', (req, res) => {api.getHome(req, res, database, discord)});
 
 	app.get('/api/reconnect', (res, req) => {discord.websocket.close(); req.send('Reconnecting...')});
 }

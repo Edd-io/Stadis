@@ -41,7 +41,7 @@
 }
 
 .result:hover {
-	background-color: #ffffff;
+	filter: brightness(1.1);
 }
 
 .result img {

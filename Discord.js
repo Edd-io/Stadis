@@ -13,6 +13,9 @@ class Discord
 	selfInfo = null;
 	isReallyClosed = false;
 	alreadyInit = false;
+	lastFiveMusic = [];
+	lastFiveStatus = [];
+	timeStart = new Date();
 
 	constructor(database, token)
 	{
@@ -33,7 +36,7 @@ class Discord
 			fetch('https://discord.com/api/v10/users/@me', {
 				method: 'GET',
 				headers: {
-					'Authorization': this.token,
+					'Authorization': token,
 				}
 			}).then((response) => {
 				if (response.ok)
@@ -245,6 +248,17 @@ class Discord
 				this.bufferPresence[message.d.user.id].web = web;
 				this.bufferPresence[message.d.user.id].mobile = mobile;
 				this.bufferPresence[message.d.user.id].desktop = desktop;
+				if (this.lastFiveStatus.length && this.lastFiveStatus[this.lastFiveStatus.length - 1].id === message.d.user.id)
+				{
+					this.lastFiveStatus.splice(this.lastFiveStatus.length - 1, 1)
+					this.lastFiveStatus.push({id: message.d.user.id, data: this.bufferPresence[message.d.user.id]});
+				}
+				else
+				{
+					if (this.lastFiveStatus.length === 5)
+						this.lastFiveStatus.shift();
+					this.lastFiveStatus.push({id: message.d.user.id, data: this.bufferPresence[message.d.user.id]});
+				}
 			}
 			else
 			{
@@ -281,10 +295,16 @@ class Discord
 							return ;
 						if (this.bufferMusic[i].name === "" || this.bufferMusic[i].artist === "")
 							return ;
+						if (this.lastFiveMusic.length === 5)
+							this.lastFiveMusic.shift();
+						this.lastFiveMusic.push({name: this.bufferMusic[i].name, artist: this.bufferMusic[i].artist, id: this.bufferMusic[i].id});
 						this.db.insertMusic(this.bufferMusic[i].id, this.bufferMusic[i].name, this.bufferMusic[i].artist);
 						return ;
 					}
 				}
+				if (this.lastFiveMusic.length === 5)
+					this.lastFiveMusic.shift();
+				this.lastFiveMusic.push({name: activity.details, artist: activity.state, id: message.d.user.id});
 				this.bufferMusic.push({id: message.d.user.id, name: activity.details, artist: activity.state});
 				this.db.insertMusic(message.d.user.id, activity.details, activity.state);
 			}
