@@ -22,9 +22,10 @@ class Discord
 		this.db = database;
 		this.token = token;
 		this.isNotValidToken(token).then(() => {
+			console.log('[Discord] Connection to Discord WebSocket...');
 			this.connect();
 		}).catch(() => {
-			console.log('Your token is not valid, please check it in secret.json');
+			console.log('[Discord] Invalid token, please check it in secret.json');
 			database.close();
 			process.exit(1);
 		});
@@ -55,7 +56,7 @@ class Discord
 		const	thisClass = this;
 
 		this.websocket.on('open', () => {
-			console.log('Connected');
+			console.log('[Discord] WebSocket connected');
 			const identifyPayload = {
 				op: 2,
 				intents: 131071,
@@ -143,6 +144,8 @@ class Discord
 
 	#readyEvent(message)
 	{
+		const	peopleNotReallyOffline = [];
+
 		if (this.alreadyInit)
 			return ;
 		this.alreadyInit = true;
@@ -166,10 +169,14 @@ class Discord
 			if (this.bufferPresence[presence.user.id].web === "offline" && this.bufferPresence[presence.user.id].mobile === "offline" && this.bufferPresence[presence.user.id].desktop === "offline")
 			{
 				this.bufferPresence[presence.user.id].isNotReallyOffline = true;
-				console.log(`[${presence.user.username}] is not really offline`);
+				peopleNotReallyOffline.push(presence.user.username);
 			}
 			else
 				this.bufferPresence[presence.user.id].isNotReallyOffline = false;
+		}
+		console.log("[Data/Status] These people are not really offline");
+		for (let i = 0; i < peopleNotReallyOffline.length; i += 4) {
+			console.log("   " + peopleNotReallyOffline.slice(i, i + 4).join(', '));
 		}
 		for (let i = 0; i < message.d.relationships.length; i++)
 		{
@@ -409,6 +416,7 @@ class Discord
 	{
 		this.isReallyClosed = true;
 		this.websocket.close();
+		this.websocket = null;
 		Object.values(this.bufferInfo).forEach((user) => {
 			user.activities.forEach((activity) => {
 				this.db.insertActivity(user.id, activity.name, activity.start, activity.end);
@@ -424,7 +432,7 @@ class Discord
 		});
 		Object.values(this.bufferCustomActivity).forEach((activity) => {
 			if (activity.state !== null)
-				this.db.insertCustomActivity(activity.id, activity.state, activity.start, new Date());
+				this.db.insertCustomActivity(activity.id, activity.state, activity.start, Date.now());
 		});
 	}
 }

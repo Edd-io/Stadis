@@ -1,6 +1,14 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 
+const green = '\x1b[32m';
+const red = '\x1b[31m';
+const orange = '\x1b[33m';
+const grey = '\x1b[90m';
+const blue = '\x1b[34m';
+const cyan = '\x1b[35m';
+const reset = '\x1b[0m';
+
 class Database
 {
 	friendList	= {};
@@ -20,7 +28,7 @@ class Database
 					else
 					{
 						this.createTable();
-						console.log('Connected to the database');
+						console.log('[Database] Connected');
 					}
 				});
 			}
@@ -44,7 +52,7 @@ class Database
 				account TEXT,
 				device TEXT,
 				status TEXT,
-				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+				timestamp DATETIME DEFAULT (DATETIME('now', 'localtime')),
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
 		`);
@@ -53,7 +61,7 @@ class Database
 				id INTEGER PRIMARY KEY,
 				account TEXT,
 				path TEXT,
-				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+				timestamp DATETIME DEFAULT (DATETIME('now', 'localtime')),
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
 		`);
@@ -83,7 +91,7 @@ class Database
 				account TEXT,
 				name TEXT,
 				artist TEXT,
-				timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+				timestamp DATETIME DEFAULT (DATETIME('now', 'localtime')),
 				FOREIGN KEY(account) REFERENCES users(id_discord) ON DELETE CASCADE
 			)
 		`);
@@ -140,7 +148,7 @@ class Database
 						}
 						else
 						{
-							console.log(`[${id}] ${username} added`);
+							console.log(`[Data/User] ${blue}${username}${reset} -> add`);
 							resolve(true);
 						}
 					});
@@ -160,7 +168,19 @@ class Database
 				if (err)
 					console.error(err.message);
 				else
-					console.log(`[${thisClass.friendList[account].username}] Presence '${status}' added`);
+				{
+					let	color = '';
+
+					if (status === 'online')
+						color = green;
+					else if (status === 'offline')
+						color = grey;
+					else if (status === 'idle')
+						color = orange;
+					else
+						color = red;
+					console.log(`[Data/Status] ${blue}${thisClass.friendList[account].username}${reset} -> ${color}${device}${reset}`);
+				}
 			});
 		}
 	
@@ -210,7 +230,7 @@ class Database
 						if (err)
 							console.error(err.message);
 						else
-							console.log(`[${thisClass.friendList[account].username}] Pfp added`);
+							console.log(`[Data/Pfp] ${blue}${thisClass.friendList[account].username}${reset} -> new added`);
 					});
 				}).catch((err) => {
 					console.error(err);
@@ -230,7 +250,7 @@ class Database
 					if (err)
 						console.error(err.message);
 					else
-						console.log(`[${thisClass.friendList[account].username}] Custom activity reloaded`);
+						console.log(`[Data/Custom Activity] ${blue}${thisClass.friendList[account].username}${reset} -> '${cyan}${text}${reset}' reloaded`);
 				});
 				return ;
 			}
@@ -240,7 +260,7 @@ class Database
 				if (err)
 					console.error(err.message);
 				else
-					console.log(`[${thisClass.friendList[account].username}] Custom activity added`);
+					console.log(`[Data/Custom Activity] ${blue}${thisClass.friendList[account].username}${reset} -> '${cyan}${text}${reset}' added`);
 			});
 		});
 	}
@@ -253,7 +273,7 @@ class Database
 			if (err)
 				console.error(err.message);
 			else
-				console.log(`[${thisClass.friendList[account].username}] Activity '${activity}' added`);
+				console.log(`[Data/Activity] ${blue}${thisClass.friendList[account].username}${reset} -> '${cyan}${activity}${reset}' added`);
 		});
 	}
 
@@ -265,7 +285,7 @@ class Database
 			if (err)
 				console.error(err.message);
 			else
-				console.log(`[${thisClass.friendList[account].username}] Listen to ${name} by ${artist}`);
+				console.log(`[Data/Music] ${blue}${thisClass.friendList[account].username}${reset} -> ${cyan}${name}${reset} by ${cyan}${artist}${reset}`);
 		});
 	}
 

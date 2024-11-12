@@ -3,7 +3,20 @@ const Discord = require('./Discord');
 const Database = require('./Database');
 const express = require('express');
 const apiImport = require('./api');
+const { exit } = require('process');
 const changeContentUser = require('./changeContent/user').changeContentUser;
+
+function printHeader()
+{
+	console.log(" _____ _            _ _");
+	console.log("/  ___| |          | (_)");
+	console.log("\\ `--.| |_ __ _  __| |_ ___");
+	console.log(" `--. \\ __/ _` |/ _` | / __|");
+	console.log("/\\__/ / || (_| | (_| | \\__ \\");
+	console.log("\\____/ \\__\\__,_|\\__,_|_|___/");
+	console.log("         By Nnaik0 & Kum1ta");
+	console.log("----------------------------\n");
+}
 
 function configApi(app, database, discord)
 {
@@ -121,12 +134,15 @@ function webServer(database, discord)
 	configApi(app, database, discord);
 
 	app.listen(port, () => {
-		console.log(`Example app listening at http://localhost:${port}`);
+		console.log(`[Website] Listening on port ${port}`);
 	});
 }
 
 function main()
 {
+	printHeader();
+	console.log('[Stadis] Starting...');
+
 	let		database	= new Database.Database(token);
 	let		discord		= null;
 	let		canStart	= true;
@@ -141,21 +157,20 @@ function main()
 
 	const quit = () => {
 		canStart = false;
-		console.warn('\rClosing connections...');
 		if (discord)
 		{
 			discord.finish();
 			discord = null;
-			console.log('\rDiscord connection closed');
+			console.log('\r[Discord] Connection closed');
 		}
 		if (database)
 		{
 			database.close();
 			database = null;
-			console.log('\rDatabase connection closed');
+			console.log('\r[Database] Connection closed');
 		}
 		setTimeout(() => {
-			console.log('\rConnections closed and data saved, exiting...');
+			console.log('\r[Stadis] Exiting...');
 			process.exit();
 		}, 1000);
 	}
