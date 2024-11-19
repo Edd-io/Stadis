@@ -1,6 +1,9 @@
 const WebSocket = require('ws');
 const gatewayUrl = 'wss://gateway.discord.gg/?v=10&encoding=json';
 
+const green = '\x1b[32m';
+const reset = '\x1b[0m';
+
 class Discord
 {
 	websocket = null;
@@ -150,6 +153,11 @@ class Discord
 			return ;
 		this.alreadyInit = true;
 		this.selfInfo = message.d.user;
+		console.log(`[Discord] Connected as ${green}${this.selfInfo.username}${reset}`);
+		this.db.getLastPfp(this.selfInfo.id).then((userPfp) => {
+			if ('data/pfp/' + this.selfInfo.id + '/' + this.selfInfo.avatar + '.png' !== userPfp.path)
+				this.db.insertPfp(this.selfInfo.id, this.selfInfo.avatar);
+		});
 		setTimeout(() => {
 			if (this && this.websocket)
 				this.websocket.send(JSON.stringify({ op: 3, d: { status: 'idle', since: new Date(), activities: [], status: 'afk', afk: true } }));
@@ -162,9 +170,12 @@ class Discord
 			web = presence.client_status.web ? presence.client_status.web : "offline";
 			mobile = presence.client_status.mobile ? presence.client_status.mobile : "offline";
 			desktop = presence.client_status.desktop ? presence.client_status.desktop : "offline";
-			this.db.insertPresence(presence.user.id, "web", web, true);
-			this.db.insertPresence(presence.user.id, "mobile", mobile, true);
-			this.db.insertPresence(presence.user.id, "desktop", desktop, true);
+			if (web !== "offline")
+				this.db.insertPresence(presence.user.id, "web", web, true);
+			if (mobile !== "offline")
+				this.db.insertPresence(presence.user.id, "mobile", mobile, true);
+			if (desktop !== "offline")
+				this.db.insertPresence(presence.user.id, "desktop", desktop, true);
 			this.bufferPresence[presence.user.id] = {web: web, mobile: mobile, desktop: desktop};
 			if (this.bufferPresence[presence.user.id].web === "offline" && this.bufferPresence[presence.user.id].mobile === "offline" && this.bufferPresence[presence.user.id].desktop === "offline")
 			{

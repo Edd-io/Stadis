@@ -230,7 +230,12 @@ class Database
 						if (err)
 							console.error(err.message);
 						else
-							console.log(`[Data/Pfp] ${blue}${thisClass.friendList[account].username}${reset} -> new added`);
+						{
+							if (thisClass.friendList[account] === undefined)
+								console.log(`[Data/Pfp] ${blue}${account}${reset} -> new added`);
+							else
+								console.log(`[Data/Pfp] ${blue}${thisClass.friendList[account].username}${reset} -> new added`);
+						}
 					});
 				}).catch((err) => {
 					console.error(err);

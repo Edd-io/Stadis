@@ -1,9 +1,21 @@
-const token = require('./secret.json').token_nexa;
+const { exit } = require('process');
+let token = null;
+let logpass = null;
+try {
+	token = require('./secret.json').token_nexa;
+	logpass = require('./secret.json').logpass;
+}
+catch (e) {
+	printHeader();
+	console.log('Please create a secret.json file with the following content:\n{\n\t"token": <your_token>,\n\t"logpass": <password_to_login_on_website>\n}');
+	exit();
+}
+
 const Discord = require('./Discord');
 const Database = require('./Database');
 const express = require('express');
+const session = require('express-session');
 const apiImport = require('./api');
-const { exit } = require('process');
 const changeContentUser = require('./changeContent/user').changeContentUser;
 
 function printHeader()
@@ -35,27 +47,57 @@ function configApi(app, database, discord)
 	app.post('/api/home', (req, res) => {api.getHome(req, res, database, discord)});
 
 	app.get('/api/reconnect', (res, req) => {discord.websocket.close(); req.send('Reconnecting...')});
+
+	app.post('/api/login', (req, res) => {
+		if (req.body.password === logpass)
+		{
+			req.session.user.connected = true;
+			res.send({connected: true});
+		}
+		else
+			res.send({connected: false});
+	});
 }
 
 function webServer(database, discord)
 {
 	const fs = require('fs');
 	const index_content = fs.readFileSync('website/index.html', 'utf8');
+	const login_content = fs.readFileSync('website/html/login.html', 'utf8');
 	const app = express();
 	const port = 3000;
 
 	app.use(express.json());
 	app.use(express.static('data/pfp'));
+	app.use(session({
+		secret: require('crypto').randomBytes(32).toString('hex'),
+		resave: false,
+		saveUninitialized: true,
+		cookie: { secure: false }
+	}));
+
+	// app.set('trust proxy', 1); // and change secure to true when in production
 
 	app.get('/', (req, res) => {
-		let		content = fs.readFileSync('website/html/home.html', 'utf8');
 		const	page = 'home';
-		let		copy = index_content;
+		let		copy = index_content
+		let		content = fs.readFileSync('website/html/home.html', 'utf8');
 
-		copy = copy.replace("{{stylesheet}}", page);
-		copy = copy.replace("{{script}}", page);
-		copy = copy.replace("{{content}}", content);
-		res.send(copy);
+		if (!req.session.user)
+		{
+			req.session.user = {
+				connected: false,
+			};
+		}
+		if (req.session.user.connected === true)
+		{
+			copy = copy.replace("{{stylesheet}}", page);
+			copy = copy.replace("{{script}}", page);
+			copy = copy.replace("{{content}}", content);
+			res.send(copy);
+		}
+		else
+			res.send(login_content);
 	});
 	
 	app.get('/user', (req, res) => {

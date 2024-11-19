@@ -1,0 +1,112 @@
+<html>
+	<head>
+		<title>Stadis - Login</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+	</head>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			background-color: #ECECEC;
+			font-family: "Poppins", serif;
+		}
+
+		#island {
+			background-color: #D9D9D9;
+			width: 500px;
+			height: 300px;
+			margin: 0 auto;
+			margin-top: 100px;
+			border-radius: 10px;
+			padding: 10px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+		}
+
+		#island h1 {
+			text-align: center;
+			margin-top: 10px;
+			color: #000000;
+		}
+
+		#password {
+			width: 90%;
+			height: 50px;
+			margin-top: 50px;
+			border: none;
+			border-radius: 5px;
+			padding: 10px;
+			font-size: 20px;
+			outline: none;
+			margin-left: 5%;
+		}
+
+		#submit {
+			width: 90%;
+			height: 50px;
+			margin-top: 20px;
+			border: none;
+			border-radius: 5px;
+			padding: 10px;
+			font-size: 20px;
+			outline: none;
+			margin-left: 5%;
+			background-color: #6b6b6b;
+			color: #FFFFFF;
+			cursor: pointer;
+		}
+	</style>
+	<body>
+		<div id="island">
+			<h1>Login</h1>
+			<input id="password" type="password" placeholder="Password">
+			<input id="submit" type="submit" value="Login">
+		</div>
+	</body>
+	<script>
+		function getData(url, body)
+		{
+			const	options = {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(body)
+			};
+
+			return (new Promise((resolve) => 
+			{
+				fetch(url, options).then((response) => {
+					if (response.status !== 200)
+					{
+						resolve(null);
+						return;
+					}
+					response.json().then((data) => {
+						resolve(data);
+					});
+				});
+			}));
+		}
+
+		document.addEventListener("DOMContentLoaded", () => {
+			document.getElementById("submit").addEventListener("click", () => {
+				let password = document.getElementById("password").value;
+
+				getData("/api/login", {password: password}).then((data) => {
+					if (data === null || data.connected === false)
+					{
+						alert("Invalid password");
+						return;
+					}
+					window.location.href = "/";
+				});
+			});
+		});
+	</script>
+</html>
