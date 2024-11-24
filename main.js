@@ -2,7 +2,7 @@ const { exit } = require('process');
 let token = null;
 let logpass = null;
 try {
-	token = require('./secret.json').token_nexa;
+	token = require('./secret.json').token;
 	logpass = require('./secret.json').logpass;
 }
 catch (e) {
