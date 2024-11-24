@@ -83,10 +83,10 @@ class Discord
 			};
 			this.websocket.send(JSON.stringify(identifyPayload));
 		});
-		
+
 		this.websocket.on('message', (data) => {
 			const message = JSON.parse(data);
-		
+
 			if (message.op === 10)
 			{
 				const interval = message.d.heartbeat_interval;
@@ -155,13 +155,14 @@ class Discord
 		this.selfInfo = message.d.user;
 		console.log(`[Discord] Connected as ${green}${this.selfInfo.username}${reset}`);
 		this.db.getLastPfp(this.selfInfo.id).then((userPfp) => {
-			if ('data/pfp/' + this.selfInfo.id + '/' + this.selfInfo.avatar + '.png' !== userPfp.path)
-				this.db.insertPfp(this.selfInfo.id, this.selfInfo.avatar);
+			if (userPfp && 'data/pfp/' + this.selfInfo.id + '/' + this.selfInfo.avatar + '.png' === userPfp.path)
+				return ;
+			this.db.insertPfp(this.selfInfo.id, this.selfInfo.avatar);
 		});
 		setTimeout(() => {
 			if (this && this.websocket)
 				this.websocket.send(JSON.stringify({ op: 3, d: { status: 'idle', since: new Date(), activities: [], status: 'afk', afk: true } }));
-		}, 1000);
+		}, 5000);
 		for (let i = 0; i < message.d.presences.length; i++)
 		{
 			const	presence = message.d.presences[i];
@@ -253,7 +254,7 @@ class Discord
 			{
 				const	oldStatus				= this.bufferPresence[message.d.user.id];
 				let		web, mobile, desktop;
-	
+
 				web = message.d.client_status.web ? message.d.client_status.web : "offline";
 				mobile = message.d.client_status.mobile ? message.d.client_status.mobile : "offline";
 				desktop = message.d.client_status.desktop ? message.d.client_status.desktop : "offline";
@@ -266,6 +267,10 @@ class Discord
 				this.bufferPresence[message.d.user.id].web = web;
 				this.bufferPresence[message.d.user.id].mobile = mobile;
 				this.bufferPresence[message.d.user.id].desktop = desktop;
+
+				const user = this.lastFiveStatus.includes(message.d.user.id) ? this.lastFiveStatus[this.lastFiveStatus.indexOf(message.d.user.id)] : null;
+				if (user && user.data.web === web && user.data.mobile === mobile && user.data.desktop === desktop)
+					return ;
 				if (this.lastFiveStatus.length && this.lastFiveStatus[this.lastFiveStatus.length - 1].id === message.d.user.id)
 				{
 					this.lastFiveStatus.splice(this.lastFiveStatus.length - 1, 1)
@@ -338,7 +343,7 @@ class Discord
 						this.db.insertCustomActivity(this.bufferCustomActivity[i].id, this.bufferCustomActivity[i].state, this.bufferCustomActivity[i].start, new Date());
 						this.bufferCustomActivity[i].state = activity.state;
 						this.bufferCustomActivity[i].start = new Date();
-						return ;	
+						return ;
 					}
 				}
 				this.bufferCustomActivity.push({id: message.d.user.id, state: activity.state, start: new Date()});
@@ -389,7 +394,7 @@ class Discord
 			for (let i = 0; i < this.bufferCustomActivity.length; i++)
 			{
 				let	foundCustomActivity = false;
-					
+
 				for (let j = 0; j < message.d.activities.length; j++)
 				{
 					if (message.d.activities[j].type === 4)

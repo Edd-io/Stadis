@@ -39,23 +39,28 @@ function configApi(app, database, discord)
 	app.post('/api/get_user_activity', (req, res) => {api.getUserActivity(req, res, database)});
 	app.post('/api/get_user_custom_activity', (req, res) => {api.getUserCustomActivity(req, res, database)});
 	app.post('/api/get_user_listen_music', (req, res) => {api.getUserListenMusic(req, res, database)});
-	
+
 	app.post('/api/search_user', (req, res) => {api.searchUser(req, res, database, discord)});
 	app.post('/api/raw', (req, res) => {api.getRawData(req, res, database)});
-	
+
 	app.post('/api/get_self_info', (req, res) => {api.getSelfInfo(req, res, discord)});
 	app.post('/api/home', (req, res) => {api.getHome(req, res, database, discord)});
 
 	app.get('/api/reconnect', (res, req) => {discord.websocket.close(); req.send('Reconnecting...')});
 
 	app.post('/api/login', (req, res) => {
-		if (req.body.password === logpass)
-		{
-			req.session.user.connected = true;
-			res.send({connected: true});
+		try {
+			if (req.body.password === logpass)
+			{
+				req.session.user.connected = true;
+				res.send({ connected: true });
+			}
+			else
+				res.send({ connected: false });
 		}
-		else
-			res.send({connected: false});
+		catch (e) {
+			res.send({ connected: false });
+		};
 	});
 }
 
@@ -99,8 +104,19 @@ function webServer(database, discord)
 		else
 			res.send(login_content);
 	});
-	
+
 	app.get('/user', (req, res) => {
+		try {
+			if (!req.session.user.connected)
+			{
+				res.redirect('/');
+				return;
+			}
+		}
+		catch (e) {
+			res.redirect('/');
+			return;
+		}
 		if (!req.query.id)
 		{
 			res.redirect('/');
@@ -125,6 +141,17 @@ function webServer(database, discord)
 	});
 
 	app.get('/search', (req, res) => {
+		try {
+			if (!req.session.user.connected)
+			{
+				res.redirect('/');
+				return;
+			}
+		}
+		catch (e) {
+			res.redirect('/');
+			return;
+		}
 		let		content = fs.readFileSync('website/html/search.html', 'utf8');
 		const	page = 'search';
 		let		copy = index_content;
@@ -136,6 +163,17 @@ function webServer(database, discord)
 	});
 
 	app.get('/raw', (req, res) => {
+		try {
+			if (!req.session.user.connected)
+			{
+				res.redirect('/');
+				return;
+			}
+		}
+		catch (e) {
+			res.redirect('/');
+			return;
+		}
 		let		content = fs.readFileSync('website/html/raw.html', 'utf8');
 		const	page = 'raw';
 		let		copy = index_content;
@@ -147,6 +185,17 @@ function webServer(database, discord)
 	});
 
 	app.get('/settings', (req, res) => {
+		try {
+			if (!req.session.user.connected)
+			{
+				res.redirect('/');
+				return;
+			}
+		}
+		catch (e) {
+			res.redirect('/');
+			return;
+		}
 		let		content = fs.readFileSync('website/html/settings.html', 'utf8');
 		const	page = 'settings';
 		let		copy = index_content;
@@ -158,16 +207,49 @@ function webServer(database, discord)
 	});
 
 	app.get('/css/:css.css', (req, res) => {
+		try {
+			if (!req.session.user.connected)
+			{
+				res.redirect('/');
+				return;
+			}
+		}
+		catch (e) {
+			res.redirect('/');
+			return;
+		}
 		const css = fs.readFileSync(`website/css/${req.params.css}.css`, 'utf8');
 		res.send(css);
 	});
 
 	app.get('/js/:js.js', (req, res) => {
+		try {
+			if (!req.session.user.connected)
+			{
+				res.redirect('/');
+				return;
+			}
+		}
+		catch (e) {
+			res.redirect('/');
+			return;
+		}
 		const js = fs.readFileSync(`website/js/${req.params.js}.js`, 'utf8');
 		res.send(js);
 	});
 
 	app.get('/ico/:ico', (req, res) => {
+		try {
+			if (!req.session.user.connected)
+			{
+				res.redirect('/');
+				return;
+			}
+		}
+		catch (e) {
+			res.redirect('/');
+			return;
+		}
 		const icon = fs.readFileSync(`website/ico/${req.params.ico}`, 'binary');
 		res.type('image/svg+xml');
 		res.send(icon);

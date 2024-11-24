@@ -138,7 +138,6 @@ function createGraphStatus()
 	canvas.width = width;
 	canvas.height = height;
 	ctx.clearRect(0, 0, width, height);
-	console.log(darkMode);
 	ctx.fillStyle = darkMode === 'true' ? 'white' : 'black';
 	ctx.fillRect(75, 0, 1, height - 40);
 	ctx.fillRect(75, height - 40, width - 75, 1);

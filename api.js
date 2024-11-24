@@ -1,63 +1,92 @@
-class Api
+function isConnected(req, res)
 {
+	try {
+		if (!req.session.user.connected)
+			return (false);
+	}
+	catch (e) {
+		return (false);
+	}
+	return (true);
+}
+
+class Api {
 	static getUserPresense(req, res, database)
 	{
-		if (!req.body.user_id)
+		if (!isConnected(req, res))
 		{
-			res.send({error: 'Missing user_id'});
+			res.send({ error: "Not connected" });
 			return;
 		}
-		
+		if (!req.body.user_id) {
+			res.send({ error: "Missing user_id" });
+			return;
+		}
+
 		const user_id = req.body.user_id;
 		database.getUserPresence(user_id).then((presence) => {
-			const	data = {desktop: [], mobile: [], web: []};
+			const data = { desktop: [], mobile: [], web: [] };
 
-			if (!presence)
-			{
-				res.send({error: 'User not found'});
+			if (!presence) {
+				res.send({ error: "User not found" });
 				return;
 			}
 			presence.forEach((row) => {
-				if (row.device === 'desktop')
-					data.desktop.push({status: row.status, timestamp: new Date(row.timestamp).getTime()});
-				else if (row.device === 'mobile')
-					data.mobile.push({status: row.status, timestamp: new Date(row.timestamp).getTime()});
-				else if (row.device === 'web')
-					data.web.push({status: row.status, timestamp: new Date(row.timestamp).getTime()});
+				if (row.device === "desktop")
+					data.desktop.push({
+						status: row.status,
+						timestamp: new Date(row.timestamp).getTime(),
+					});
+				else if (row.device === "mobile")
+					data.mobile.push({
+						status: row.status,
+						timestamp: new Date(row.timestamp).getTime(),
+					});
+				else if (row.device === "web")
+					data.web.push({
+						status: row.status,
+						timestamp: new Date(row.timestamp).getTime(),
+					});
 			});
 			data.desktop.sort((a, b) => a.timestamp - b.timestamp);
 			data.mobile.sort((a, b) => a.timestamp - b.timestamp);
 			data.web.sort((a, b) => a.timestamp - b.timestamp);
-			let firstOnlineDesktop = data.desktop.findIndex((element) => element.status === 'online' || element.status === 'dnd' || element.status === 'idle');
-			let firstOnlineMobile = data.mobile.findIndex((element) => element.status === 'online' || element.status === 'dnd' || element.status === 'idle');
-			let firstOnlineWeb = data.web.findIndex((element) => element.status === 'online' || element.status === 'dnd' || element.status === 'idle');
+			let firstOnlineDesktop = data.desktop.findIndex(
+				(element) =>
+					element.status === "online" ||
+					element.status === "dnd" ||
+					element.status === "idle",
+			);
+			let firstOnlineMobile = data.mobile.findIndex(
+				(element) =>
+					element.status === "online" ||
+					element.status === "dnd" ||
+					element.status === "idle",
+			);
+			let firstOnlineWeb = data.web.findIndex(
+				(element) =>
+					element.status === "online" ||
+					element.status === "dnd" ||
+					element.status === "idle",
+			);
 			let arr = [];
-			if (firstOnlineDesktop !== -1)
-			{
-				for (let i = firstOnlineDesktop; i < data.desktop.length; i++)
-				{
-					if (data.desktop[i].status === 'offline')
-						continue;
+			if (firstOnlineDesktop !== -1) {
+				for (let i = firstOnlineDesktop; i < data.desktop.length; i++) {
+					if (data.desktop[i].status === "offline") continue;
 					arr.push(data.desktop[i].timestamp);
 					break;
 				}
 			}
-			if (firstOnlineMobile !== -1)
-			{
-				for (let i = firstOnlineMobile; i < data.mobile.length; i++)
-				{
-					if (data.mobile[i].status === 'offline')
-						continue;
+			if (firstOnlineMobile !== -1) {
+				for (let i = firstOnlineMobile; i < data.mobile.length; i++) {
+					if (data.mobile[i].status === "offline") continue;
 					arr.push(data.mobile[i].timestamp);
 					break;
 				}
 			}
-			if (firstOnlineWeb !== -1)
-			{
-				for (let i = firstOnlineWeb; i < data.web.length; i++)
-				{
-					if (data.web[i].status === 'offline')
-						continue;
+			if (firstOnlineWeb !== -1) {
+				for (let i = firstOnlineWeb; i < data.web.length; i++) {
+					if (data.web[i].status === "offline") continue;
 					arr.push(data.web[i].timestamp);
 					break;
 				}
@@ -70,24 +99,30 @@ class Api
 
 	static getUserAllPfp(req, res, database)
 	{
-		if (!req.body.user_id)
+		if (!isConnected(req, res))
 		{
-			res.send({error: 'Missing user_id'});
+			res.send({ error: "Not connected" });
 			return;
 		}
-		
+		if (!req.body.user_id) {
+			res.send({ error: "Missing user_id" });
+			return;
+		}
+
 		const user_id = req.body.user_id;
 		database.getUserAllPfp(user_id).then((pfp) => {
-			const	data = [];
+			const data = [];
 
-			if (!pfp)
-			{
-				res.send({error: 'User not found'});
+			if (!pfp) {
+				res.send({ error: "User not found" });
 				return;
 			}
 			pfp.forEach((row) => {
 				const path = row.path.substring(8);
-				data.push({url: path, timestamp: new Date(row.timestamp).getTime()});
+				data.push({
+					url: path,
+					timestamp: new Date(row.timestamp).getTime(),
+				});
 			});
 			res.send(data);
 		});
@@ -95,33 +130,39 @@ class Api
 
 	static getUserActivity(req, res, database)
 	{
-		if (!req.body.user_id)
+		if (!isConnected(req, res))
 		{
-			res.send({error: 'Missing user_id'});
+			res.send({ error: "Not connected" });
 			return;
 		}
-		
+		if (!req.body.user_id)
+		{
+			res.send({ error: "Missing user_id" });
+			return;
+		}
+
 		const user_id = req.body.user_id;
 		database.getUserActivity(user_id).then((activity) => {
-			const	data = {activity: []};
-			if (!activity)
-			{
-				res.send({error: 'User not found'});
+			const data = { activity: [] };
+			if (!activity) {
+				res.send({ error: "User not found" });
 				return;
 			}
 			activity.forEach((row) => {
-				data.activity.push({name: row.activity, start: row.start, end: row.end});
+				data.activity.push({
+					name: row.activity,
+					start: row.start,
+					end: row.end,
+				});
 			});
 			data.activity.sort((a, b) => a.start - b.start);
-			if (data.activity.length === 0)
-			{
+			if (data.activity.length === 0) {
 				data.firstTimestamp = 0;
 				data.lastTimestamp = Date.now();
-			}
-			else
-			{
+			} else {
 				data.firstTimestamp = data.activity[0].start;
-				data.lastTimestamp = data.activity[data.activity.length - 1].end;
+				data.lastTimestamp =
+					data.activity[data.activity.length - 1].end;
 			}
 			res.send(data);
 		});
@@ -129,22 +170,27 @@ class Api
 
 	static getUserCustomActivity(req, res, database)
 	{
-		if (!req.body.user_id)
+		if (!isConnected(req, res))
 		{
-			res.send({error: 'Missing user_id'});
+			res.send({ error: "Not connected" });
 			return;
 		}
-		
+		if (!req.body.user_id)
+		{
+			res.send({ error: "Missing user_id" });
+			return;
+		}
+
 		const user_id = req.body.user_id;
 		database.getUserCustomActivity(user_id).then((activity) => {
-			const	data = [];
+			const data = [];
 			if (!activity)
 			{
-				res.send({error: 'User not found'});
+				res.send({ error: "User not found" });
 				return;
 			}
 			activity.forEach((row) => {
-				data.push({text: row.text, start: row.start, end: row.end});
+				data.push({ text: row.text, start: row.start, end: row.end });
 			});
 			res.send(data);
 		});
@@ -152,22 +198,30 @@ class Api
 
 	static getUserListenMusic(req, res, database)
 	{
-		if (!req.body.user_id)
+		if (!isConnected(req, res))
 		{
-			res.send({error: 'Missing user_id'});
+			res.send({ error: "Not connected" });
 			return;
 		}
-		
+		if (!req.body.user_id)
+		{
+			res.send({ error: "Missing user_id" });
+			return;
+		}
+
 		const user_id = req.body.user_id;
 		database.getUserListenMusic(user_id).then((music) => {
-			const	data = [];
-			if (!music)
-			{
-				res.send({error: 'User not found'});
+			const data = [];
+			if (!music) {
+				res.send({ error: "User not found" });
 				return;
 			}
 			music.forEach((row) => {
-				data.push({name: row.name, artist: row.artist, at: row.timestamp});
+				data.push({
+					name: row.name,
+					artist: row.artist,
+					at: row.timestamp,
+				});
 			});
 			res.send(data);
 		});
@@ -175,18 +229,31 @@ class Api
 
 	static searchUser(req, res, database, discord)
 	{
-		if (req.body.value === undefined)
+		if (!isConnected(req, res))
 		{
-			res.send({error: 'Missing value'});
+			res.send({ error: "Not connected" });
 			return;
 		}
-		
+		if (req.body.value === undefined)
+		{
+			res.send({ error: "Missing value" });
+			return;
+		}
+
 		const value = req.body.value;
 		const data = [];
 		discord.bufferInfo.forEach((info) => {
-			if (info.username.toLowerCase().indexOf(value.toLowerCase()) === -1 && info.id.indexOf(value) === -1)
+			if (
+				info.username.toLowerCase().indexOf(value.toLowerCase()) ===
+					-1 &&
+				info.id.indexOf(value) === -1
+			)
 				return;
-			data.push({id: info.id, username: info.username, avatar: info.pfp});
+			data.push({
+				id: info.id,
+				username: info.username,
+				avatar: info.pfp,
+			});
 		});
 		data.sort((a, b) => a.username.localeCompare(b.username));
 		res.send(data);
@@ -194,30 +261,39 @@ class Api
 
 	static getRawData(req, res, database)
 	{
-		const	types = ['activitys', 'customs_status', 'musics', 'pfps', 'presences', 'users'];
-		if (!req.body.type || !req.body.range)
+		if (!isConnected(req, res))
 		{
-			res.send({error: 'Missing type'});
+			res.send({ error: "Not connected" });
 			return;
 		}
-		
+		const types = [
+			"activitys",
+			"customs_status",
+			"musics",
+			"pfps",
+			"presences",
+			"users",
+		];
+		if (!req.body.type || !req.body.range)
+		{
+			res.send({ error: "Missing type" });
+			return;
+		}
+
 		const type = req.body.type;
 		const range = req.body.range;
 
-		if (types.indexOf(type) === -1)
-		{
-			res.send({error: 'Invalid type'});
+		if (types.indexOf(type) === -1) {
+			res.send({ error: "Invalid type" });
 			return;
 		}
-		if (range.length !== 2 || range[0] > range[1])
-		{
-			res.send({error: 'Invalid range'});
+		if (range.length !== 2 || range[0] > range[1]) {
+			res.send({ error: "Invalid range" });
 			return;
 		}
 		database.getRawData(type, range).then((data) => {
-			if (!data)
-			{
-				res.send({error: 'An error occured while fetching the data'});
+			if (!data) {
+				res.send({ error: "An error occured while fetching the data" });
 				return;
 			}
 			res.send(data);
@@ -226,6 +302,11 @@ class Api
 
 	static getSelfInfo(req, res, discord)
 	{
+		if (!isConnected(req, res))
+		{
+			res.send({ error: "Not connected" });
+			return;
+		}
 		res.send({
 			username: discord.selfInfo.username,
 			discriminator: discord.selfInfo.discriminator,
@@ -241,30 +322,55 @@ class Api
 
 	static getHome(req, res, database, discord)
 	{
-		const	data = {musics: [], status: []};
+		if (!isConnected(req, res))
+		{
+			res.send({ error: "Not connected" });
+			return;
+		}
+		const data = { musics: [], status: [] };
 
-		database.getTableCount('users').then((count) => {
+		database.getTableCount("users").then((count) => {
 			data.users = count;
 			data.timeStated = discord.timeStart;
-			for (let i = 0; i < discord.lastFiveMusic.length; i++)
-			{
-				const	username	= discord.bufferInfo.find((info) => info.id === discord.lastFiveMusic[i].id).username;
-				const	pfp			= discord.bufferInfo.find((info) => info.id === discord.lastFiveMusic[i].id).pfp;
-	
-				data.musics.push({name: discord.lastFiveMusic[i].name, artist: discord.lastFiveMusic[i].artist, username: username, pfp: pfp});
+			for (let i = 0; i < discord.lastFiveMusic.length; i++) {
+				const username = discord.bufferInfo.find(
+					(info) => info.id === discord.lastFiveMusic[i].id,
+				).username;
+				const pfp = discord.bufferInfo.find(
+					(info) => info.id === discord.lastFiveMusic[i].id,
+				).pfp;
+				const id = discord.bufferInfo.find(
+					(info) => info.id === discord.lastFiveMusic[i].id,
+				).id;
+
+				data.musics.push({
+					name: discord.lastFiveMusic[i].name,
+					artist: discord.lastFiveMusic[i].artist,
+					username: username,
+					id: id,
+					pfp: pfp,
+				});
 			}
-			for (let i = 0; i < discord.lastFiveStatus.length; i++)
-			{
-				const	username	= discord.bufferInfo.find((info) => info.id === discord.lastFiveStatus[i].id).username;
-				const	pfp			= discord.bufferInfo.find((info) => info.id === discord.lastFiveStatus[i].id).pfp;
-	
-				data.status.push({id :discord.lastFiveStatus[i].id, data: discord.lastFiveStatus[i].data, username: username, pfp: pfp});
+			for (let i = 0; i < discord.lastFiveStatus.length; i++) {
+				const username = discord.bufferInfo.find(
+					(info) => info.id === discord.lastFiveStatus[i].id,
+				).username;
+				const pfp = discord.bufferInfo.find(
+					(info) => info.id === discord.lastFiveStatus[i].id,
+				).pfp;
+
+				data.status.push({
+					id: discord.lastFiveStatus[i].id,
+					data: discord.lastFiveStatus[i].data,
+					username: username,
+					pfp: pfp,
+				});
 			}
 			data.musics.reverse();
 			data.status.reverse();
 			res.send(data);
 		});
-	};
+	}
 }
 
 exports.Api = Api;

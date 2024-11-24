@@ -1,9 +1,9 @@
-<div style="width: 100%; height: 100%; display: flex; flex-direction: row;">
+<div style="width: 100%; height: 100%; display: flex; flex-direction: row">
 	<div class="left-container">
-		<img id="pfp-img-box">
+		<img id="pfp-img-box" />
 		<div class="info-box">
 			<p>Username<span id="username-info"></span></p>
-			<p>Nickname<span id="nickname-info"></spa></p>
+			<p>Nickname<span id="nickname-info"></span></p>
 			<p>Discriminator<span id="discriminator-info"></span></p>
 			<p>ID<span id="id-info"></span></p>
 			<p>Create at<span id="created-info"></span></p>
@@ -11,22 +11,25 @@
 		</div>
 	</div>
 	<div class="center-container">
-		<div class="tile" style="margin-bottom: 20px;">
+		<div class="tile" style="margin-bottom: 20px">
 			<h1>Last musics listen by friends</h1>
+			<div id="music-listen-div"></div>
 		</div>
 		<div class="tile">
 			<h1>Last friends status</h1>
+			<div id="status-div"></div>
 		</div>
 	</div>
 	<div class="right-container">
-		<div class="tile mini-box">
+		<div class="tile mini-box" id="nbFriendsDiv">
 			<h2>Number friends</h2>
 		</div>
-		<div class="tile mini-box">
+		<div class="tile mini-box" id="activityTimeDiv">
 			<h2>Activity time (since server startup)</h2>
 		</div>
-		<div class="tile box" style="margin-bottom: 20px;">
+		<div class="tile box" style="margin-bottom: 20px">
 			<h1>Friends status</h1>
+			<p>Shortly...</p>
 		</div>
 		<div class="tile box">
 			<h1>Pin user</h1>

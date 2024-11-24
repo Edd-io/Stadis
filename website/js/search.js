@@ -34,7 +34,7 @@ function getData(url, body)
 		body: JSON.stringify(body)
 	};
 
-	return (new Promise((resolve) => 
+	return (new Promise((resolve) =>
 	{
 		fetch(url, options).then((response) => {
 			if (response.status !== 200)
@@ -55,7 +55,6 @@ function showListUser(data)
 
 	data.forEach(element => {
 		const	div = document.createElement('div');
-		console.log(element);
 		div.setAttribute('class', 'result');
 		div.setAttribute('onclick', `window.location.href = '/user?id=${element.id}'`);
 		div.innerHTML = `
