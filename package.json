@@ -1,0 +1,19 @@
+{
+  "name": "stadis",
+  "version": "1.0.0",
+  "description": "A Discord selfbot that collects and displays activity logs, status, avatars, and musicd from your friends list through a web interface.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "node-fetch": "^3.3.2",
+    "sqlite3": "^5.1.7",
+    "ws": "^8.18.0"
+  }
+}
