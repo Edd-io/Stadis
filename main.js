@@ -64,13 +64,12 @@ function configApi(app, database, discord)
 	});
 }
 
-function webServer(database, discord)
+function webServer(database, discord, port, port_start)
 {
 	const fs = require('fs');
 	const index_content = fs.readFileSync('website/index.html', 'utf8');
 	const login_content = fs.readFileSync('website/html/login.html', 'utf8');
 	const app = express();
-	const port = 3000;
 
 	app.use(express.json());
 	app.use(express.static('data/pfp'));
@@ -257,8 +256,25 @@ function webServer(database, discord)
 
 	configApi(app, database, discord);
 
-	app.listen(port, () => {
+
+
+	const server = app.listen(port, () => {
 		console.log(`[Website] Listening on port ${port}`);
+	});
+
+	server.on('error', (e) => {
+		if (e.code === 'EADDRINUSE') {
+			console.error(`[Website] Port ${port} is already in use, trying next port...`);
+			port++;
+			if (port > port_start + 100) {
+				console.error('[Website] Could not start server, please check your configuration.');
+				exit(1);
+			}
+			webServer(database, discord, port, port_start);
+		} else {
+			console.error(`[Website] Server error: ${e.message}`);
+			exit(1);
+		}
 	});
 }
 
@@ -266,6 +282,8 @@ function main()
 {
 	printHeader();
 	console.log('[Stadis] Starting...');
+	const port = process.env.PORT || 3000;
+	const port_start = port;
 
 	let		database	= new Database.Database(token);
 	let		discord		= null;
@@ -275,7 +293,7 @@ function main()
 		if (canStart === false)
 			return;
 		discord = new Discord.Discord(database, token);
-		webServer(database, discord);
+		webServer(database, discord, port, port_start);
 
 	}, 1000);
 
